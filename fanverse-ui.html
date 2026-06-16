@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FanVerse — Movie Fan Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080810;
+    --surface: #0f0f1a;
+    --card: #13131f;
+    --border: #1e1e32;
+    --accent: #ff3c5f;
+    --gold: #ffd166;
+    --cyan: #06d6a0;
+    --purple: #7c3aed;
+    --text: #f0f0ff;
+    --muted: #6b6b8a;
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(8,8,16,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { font-family: 'Bebas Neue'; font-size: 28px; letter-spacing: 3px; color: var(--accent); }
+  .logo span { color: var(--gold); }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab {
+    padding: 6px 16px; border-radius: 8px; cursor: pointer;
+    font-size: 13px; font-weight: 500; color: var(--muted);
+    transition: all 0.2s; border: none; background: none;
+  }
+  .nav-tab.active, .nav-tab:hover { color: var(--text); background: var(--surface); }
+  .nav-tab.active { color: var(--accent); }
+
+  /* ===== MAIN LAYOUT ===== */
+  .container { padding-top: 60px; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ===== SCREEN LABELS ===== */
+  .screen-label {
+    position: sticky; top: 60px; z-index: 50;
+    background: var(--border);
+    padding: 8px 32px;
+    font-family: 'Space Mono'; font-size: 11px; color: var(--muted);
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .screen-label span { color: var(--gold); }
+
+  /* ===== ONBOARDING ===== */
+  #onboarding {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+
+  .splash {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #080810 0%, #0d0d20 50%, #120818 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 40px;
+    position: relative; overflow: hidden;
+  }
+  .splash::before {
+    content: '';
+    position: absolute; width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(255,60,95,0.12) 0%, transparent 70%);
+    top: -100px; right: -100px;
+  }
+  .splash::after {
+    content: '';
+    position: absolute; width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(124,58,237,0.1) 0%, transparent 70%);
+    bottom: -50px; left: -50px;
+  }
+
+  .splash-badge {
+    font-family: 'Space Mono'; font-size: 11px; color: var(--accent);
+    letter-spacing: 3px; text-transform: uppercase;
+    border: 1px solid rgba(255,60,95,0.3); padding: 6px 16px; border-radius: 100px;
+    margin-bottom: 32px; position: relative; z-index: 1;
+  }
+
+  .splash-title {
+    font-family: 'Bebas Neue'; font-size: clamp(72px, 12vw, 120px);
+    line-height: 0.9; text-align: center; position: relative; z-index: 1;
+    letter-spacing: 4px;
+  }
+  .splash-title .line1 { color: var(--text); display: block; }
+  .splash-title .line2 { color: var(--accent); display: block; }
+
+  .splash-sub {
+    color: var(--muted); font-size: 16px; text-align: center;
+    max-width: 360px; line-height: 1.6; margin: 24px 0 48px;
+    position: relative; z-index: 1;
+  }
+
+  .btn-primary {
+    background: var(--accent); color: white;
+    padding: 16px 40px; border-radius: 100px; font-size: 15px; font-weight: 600;
+    border: none; cursor: pointer; position: relative; z-index: 1;
+    transition: all 0.2s; letter-spacing: 0.5px;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(255,60,95,0.4); }
+
+  .btn-ghost {
+    background: transparent; color: var(--muted);
+    padding: 14px 40px; border-radius: 100px; font-size: 15px; font-weight: 500;
+    border: 1px solid var(--border); cursor: pointer;
+    transition: all 0.2s; margin-top: 12px;
+  }
+  .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+
+  .splash-actions { display: flex; flex-direction: column; align-items: center; gap: 0; position: relative; z-index: 1; }
+
+  /* ===== REGISTRATION SCREEN ===== */
+  .auth-screen {
+    min-height: 100vh;
+    display: grid; grid-template-columns: 1fr 1fr;
+  }
+  .auth-left {
+    background: linear-gradient(160deg, #120818, #0d0025);
+    padding: 60px; display: flex; flex-direction: column; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .auth-left::before {
+    content: 'FAN VERSE';
+    font-family: 'Bebas Neue'; font-size: 200px; color: rgba(255,255,255,0.02);
+    position: absolute; bottom: -20px; left: -20px; line-height: 1; white-space: nowrap;
+  }
+  .auth-movie-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; max-width: 280px;
+    position: relative; z-index: 1;
+  }
+  .movie-poster {
+    width: 100%; aspect-ratio: 2/3; background: linear-gradient(135deg, #1a0533, #2d0066, #ff3c5f20);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue'; font-size: 32px; color: rgba(255,255,255,0.3); letter-spacing: 4px;
+  }
+  .auth-movie-info { padding: 16px; }
+  .auth-movie-info h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .auth-movie-info p { font-size: 12px; color: var(--muted); }
+  .referral-invite {
+    margin-top: 20px; background: rgba(255,209,102,0.08); border: 1px solid rgba(255,209,102,0.2);
+    border-radius: 12px; padding: 16px; position: relative; z-index: 1;
+  }
+  .referral-invite .invite-label { font-family: 'Space Mono'; font-size: 10px; color: var(--gold); letter-spacing: 2px; margin-bottom: 8px; }
+  .referral-invite p { font-size: 13px; color: var(--text); line-height: 1.5; }
+  .referral-invite .inviter { font-weight: 600; color: var(--gold); }
+
+  .auth-right {
+    padding: 60px; display: flex; flex-direction: column; justify-content: center;
+  }
+  .auth-right h2 { font-family: 'Bebas Neue'; font-size: 48px; letter-spacing: 2px; margin-bottom: 8px; }
+  .auth-right .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 40px; }
+
+  .form-group { margin-bottom: 20px; }
+  .form-label { font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
+  .form-input {
+    width: 100%; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; color: var(--text); font-size: 15px;
+    font-family: 'DM Sans'; outline: none; transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: var(--accent); }
+  .form-input::placeholder { color: var(--muted); }
+
+  .referral-field {
+    background: rgba(6,214,160,0.05); border-color: rgba(6,214,160,0.3) !important;
+  }
+  .referral-field-label { color: var(--cyan) !important; }
+
+  .otp-row { display: flex; gap: 12px; }
+  .otp-box {
+    flex: 1; aspect-ratio: 1; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; text-align: center; font-size: 22px; font-weight: 700;
+    color: var(--text); outline: none;
+  }
+  .otp-box:focus { border-color: var(--accent); }
+
+  /* ===== HOME FEED ===== */
+  .home-layout { display: grid; grid-template-columns: 240px 1fr 300px; gap: 0; min-height: calc(100vh - 60px); }
+
+  .sidebar {
+    border-right: 1px solid var(--border); padding: 24px 16px;
+    position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto;
+  }
+
+  .sidebar-section { margin-bottom: 32px; }
+  .sidebar-label { font-family: 'Space Mono'; font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; padding: 0 8px; }
+
+  .sidebar-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: 10px; cursor: pointer;
+    font-size: 14px; font-weight: 500; color: var(--muted);
+    transition: all 0.15s; margin-bottom: 2px;
+  }
+  .sidebar-item:hover { background: var(--surface); color: var(--text); }
+  .sidebar-item.active { background: rgba(255,60,95,0.1); color: var(--accent); }
+  .sidebar-icon { font-size: 18px; width: 24px; text-align: center; }
+
+  .wallet-mini {
+    background: linear-gradient(135deg, rgba(255,209,102,0.1), rgba(255,60,95,0.05));
+    border: 1px solid rgba(255,209,102,0.2); border-radius: 14px; padding: 16px;
+  }
+  .wallet-mini-label { font-size: 11px; color: var(--gold); font-family: 'Space Mono'; letter-spacing: 1px; margin-bottom: 4px; }
+  .wallet-mini-amount { font-family: 'Bebas Neue'; font-size: 32px; color: var(--gold); letter-spacing: 2px; }
+  .wallet-mini-sub { font-size: 11px; color: var(--muted); }
+
+  /* FEED */
+  .feed { padding: 24px; border-right: 1px solid var(--border); }
+
+  .stories-row { display: flex; gap: 12px; margin-bottom: 28px; overflow-x: auto; padding-bottom: 8px; }
+  .story-item { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
+  .story-ring {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    padding: 2px; display: flex; align-items: center; justify-content: center;
+  }
+  .story-inner { width: 100%; height: 100%; border-radius: 50%; background: var(--card); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .story-name { font-size: 11px; color: var(--muted); max-width: 64px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .event-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    overflow: hidden; margin-bottom: 20px; transition: border-color 0.2s;
+  }
+  .event-card:hover { border-color: var(--muted); }
+
+  .event-banner {
+    width: 100%; height: 200px;
+    background: linear-gradient(135deg, #1a0033 0%, #2d0066 50%, rgba(255,60,95,0.3) 100%);
+    display: flex; align-items: flex-end; padding: 20px;
+    position: relative;
+  }
+  .event-banner-2 { background: linear-gradient(135deg, #001a33 0%, #003366 50%, rgba(6,214,160,0.2) 100%); }
+  .event-banner-3 { background: linear-gradient(135deg, #1a1a00 0%, #333300 50%, rgba(255,209,102,0.2) 100%); }
+
+  .event-type-badge {
+    position: absolute; top: 16px; left: 16px;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 100px;
+    padding: 4px 12px; font-size: 11px; color: var(--text); font-family: 'Space Mono';
+  }
+  .event-live-badge {
+    position: absolute; top: 16px; right: 16px;
+    background: var(--accent); border-radius: 100px;
+    padding: 4px 12px; font-size: 11px; color: white; font-weight: 600;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .live-dot { width: 6px; height: 6px; background: white; border-radius: 50%; animation: blink 1s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  .event-banner h2 { font-family: 'Bebas Neue'; font-size: 28px; letter-spacing: 2px; line-height: 1; }
+  .event-banner p { color: rgba(255,255,255,0.6); font-size: 13px; }
+
+  .event-body { padding: 20px; }
+  .event-meta { display: flex; gap: 20px; margin-bottom: 16px; }
+  .meta-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+  .event-actions { display: flex; gap: 12px; align-items: center; }
+  .btn-sm {
+    padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 600;
+    border: none; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-accent { background: var(--accent); color: white; }
+  .btn-accent:hover { box-shadow: 0 6px 20px rgba(255,60,95,0.4); }
+  .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-outline:hover { border-color: var(--muted); }
+  .referral-btn { 
+    margin-left: auto; background: rgba(6,214,160,0.1); color: var(--cyan);
+    border: 1px solid rgba(6,214,160,0.3);
+  }
+  .coin-reward { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--gold); font-weight: 600; }
+
+  /* RIGHT PANEL */
+  .right-panel { padding: 24px; }
+  .panel-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+  .panel-title { font-family: 'Bebas Neue'; font-size: 20px; letter-spacing: 2px; margin-bottom: 16px; }
+
+  .leaderboard-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .leaderboard-item:last-child { border-bottom: none; }
+  .lb-rank { font-family: 'Space Mono'; font-size: 13px; font-weight: 700; width: 24px; color: var(--muted); }
+  .lb-rank.gold { color: var(--gold); }
+  .lb-rank.silver { color: #c0c0c0; }
+  .lb-rank.bronze { color: #cd7f32; }
+  .lb-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--purple), var(--accent)); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .lb-info { flex: 1; }
+  .lb-name { font-size: 13px; font-weight: 600; }
+  .lb-refs { font-size: 11px; color: var(--muted); }
+  .lb-coins { font-family: 'Space Mono'; font-size: 12px; color: var(--gold); }
+
+  /* ===== WALLET SCREEN ===== */
+  .wallet-screen { max-width: 800px; margin: 0 auto; padding: 40px 24px; }
+
+  .wallet-hero {
+    background: linear-gradient(135deg, #1a0d00, #2d1500, rgba(255,209,102,0.1));
+    border: 1px solid rgba(255,209,102,0.2); border-radius: 24px; padding: 40px;
+    text-align: center; margin-bottom: 32px; position: relative; overflow: hidden;
+  }
+  .wallet-hero::before {
+    content: '◈';
+    font-size: 300px; color: rgba(255,209,102,0.03);
+    position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
+    font-family: monospace;
+  }
+  .wallet-hero-label { font-family: 'Space Mono'; font-size: 12px; color: var(--gold); letter-spacing: 3px; margin-bottom: 12px; }
+  .wallet-balance { font-family: 'Bebas Neue'; font-size: 80px; color: var(--gold); letter-spacing: 4px; line-height: 1; position: relative; z-index: 1; }
+  .wallet-balance-sub { color: var(--muted); font-size: 14px; margin-top: 8px; }
+  .wallet-value { font-size: 18px; color: var(--text); font-weight: 600; margin-top: 4px; }
+
+  .wallet-actions { display: flex; gap: 12px; justify-content: center; margin-top: 28px; }
+  .wallet-action-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    border-radius: 16px; padding: 16px 24px; cursor: pointer; transition: all 0.2s;
+    font-size: 13px; font-weight: 500; color: var(--text);
+  }
+  .wallet-action-btn:hover { background: rgba(255,255,255,0.08); border-color: var(--muted); }
+  .wallet-action-icon { font-size: 24px; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .stat-value { font-family: 'Bebas Neue'; font-size: 36px; letter-spacing: 2px; }
+  .stat-value.accent { color: var(--accent); }
+  .stat-value.cyan { color: var(--cyan); }
+  .stat-value.gold { color: var(--gold); }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  .transactions { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .tx-header { padding: 20px; border-bottom: 1px solid var(--border); font-family: 'Bebas Neue'; font-size: 20px; letter-spacing: 2px; }
+  .tx-item { display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .tx-item:last-child { border-bottom: none; }
+  .tx-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .tx-icon.earn { background: rgba(6,214,160,0.1); }
+  .tx-icon.spend { background: rgba(255,60,95,0.1); }
+  .tx-icon.bonus { background: rgba(255,209,102,0.1); }
+  .tx-info { flex: 1; }
+  .tx-title { font-size: 14px; font-weight: 500; }
+  .tx-date { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .tx-amount { font-family: 'Space Mono'; font-size: 14px; font-weight: 700; }
+  .tx-amount.plus { color: var(--cyan); }
+  .tx-amount.minus { color: var(--accent); }
+
+  /* ===== REFERRAL SCREEN ===== */
+  .referral-screen { max-width: 800px; margin: 0 auto; padding: 40px 24px; }
+
+  .referral-hero {
+    background: linear-gradient(135deg, #001a0d, #003320, rgba(6,214,160,0.1));
+    border: 1px solid rgba(6,214,160,0.2); border-radius: 24px; padding: 40px;
+    margin-bottom: 32px; text-align: center;
+  }
+  .referral-hero h1 { font-family: 'Bebas Neue'; font-size: 56px; letter-spacing: 3px; line-height: 1; }
+  .referral-hero h1 span { color: var(--cyan); }
+  .referral-hero p { color: var(--muted); font-size: 15px; max-width: 400px; margin: 16px auto 32px; line-height: 1.6; }
+
+  .ref-link-box {
+    background: var(--bg); border: 1px solid rgba(6,214,160,0.3); border-radius: 14px;
+    padding: 16px 20px; display: flex; align-items: center; gap: 16px; max-width: 480px; margin: 0 auto;
+  }
+  .ref-link-text { flex: 1; font-family: 'Space Mono'; font-size: 12px; color: var(--cyan); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .copy-btn { background: var(--cyan); color: #000; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; font-family: 'Space Mono'; }
+
+  .share-row { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
+  .share-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    border-radius: 100px; padding: 10px 20px; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s; color: var(--text);
+  }
+  .share-btn:hover { background: rgba(255,255,255,0.1); }
+
+  .how-it-works { margin-bottom: 32px; }
+  .hiw-title { font-family: 'Bebas Neue'; font-size: 28px; letter-spacing: 2px; margin-bottom: 20px; }
+  .hiw-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .hiw-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; position: relative; }
+  .step-num { font-family: 'Bebas Neue'; font-size: 60px; color: rgba(255,255,255,0.04); position: absolute; top: 10px; right: 16px; line-height: 1; }
+  .step-icon { font-size: 28px; margin-bottom: 12px; }
+  .step-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  .step-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .step-reward { display: inline-block; background: rgba(255,209,102,0.1); border: 1px solid rgba(255,209,102,0.3); border-radius: 100px; padding: 4px 12px; font-size: 12px; color: var(--gold); font-weight: 600; margin-top: 12px; }
+
+  .ref-tree { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 32px; }
+  .ref-tree-title { font-family: 'Bebas Neue'; font-size: 24px; letter-spacing: 2px; margin-bottom: 20px; }
+  .tree-node { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+  .tree-node.level-1 { padding-left: 0; }
+  .tree-node.level-2 { padding-left: 32px; border-left: 2px solid var(--border); margin-left: 16px; position: relative; }
+  .tree-node.level-2::before { content: ''; position: absolute; left: -2px; top: 50%; width: 20px; height: 2px; background: var(--border); }
+  .tree-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .tree-avatar.you { background: linear-gradient(135deg, var(--accent), var(--purple)); }
+  .tree-avatar.l1 { background: linear-gradient(135deg, var(--cyan), #0099cc); }
+  .tree-avatar.l2 { background: linear-gradient(135deg, var(--gold), #ff9900); }
+  .tree-info { flex: 1; }
+  .tree-name { font-size: 14px; font-weight: 600; }
+  .tree-status { font-size: 11px; color: var(--muted); }
+  .tree-earned { font-family: 'Space Mono'; font-size: 12px; }
+  .tree-earned.cyan { color: var(--cyan); }
+  .tree-earned.gold { color: var(--gold); }
+
+  /* ===== TICKET SCREEN ===== */
+  .ticket-screen { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+
+  .priority-banner {
+    background: linear-gradient(90deg, rgba(255,60,95,0.15), rgba(124,58,237,0.15));
+    border: 1px solid rgba(255,60,95,0.3); border-radius: 14px; padding: 16px 24px;
+    display: flex; align-items: center; gap: 16px; margin-bottom: 32px;
+  }
+  .priority-icon { font-size: 28px; }
+  .priority-text h3 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .priority-text p { font-size: 13px; color: var(--muted); }
+  .priority-timer { margin-left: auto; text-align: right; }
+  .priority-timer-label { font-size: 11px; color: var(--muted); font-family: 'Space Mono'; }
+  .priority-timer-val { font-family: 'Bebas Neue'; font-size: 28px; color: var(--accent); letter-spacing: 2px; }
+
+  .movie-booking-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-bottom: 24px;
+  }
+  .booking-header { display: grid; grid-template-columns: 160px 1fr; }
+  .booking-poster {
+    background: linear-gradient(135deg, #1a0033, #3d0066);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue'; font-size: 18px; color: rgba(255,255,255,0.2);
+    letter-spacing: 3px; writing-mode: vertical-rl; min-height: 200px;
+  }
+  .booking-info { padding: 24px; }
+  .booking-title { font-family: 'Bebas Neue'; font-size: 36px; letter-spacing: 2px; margin-bottom: 4px; }
+  .booking-meta { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .booking-meta span { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+  .booking-meta span.highlight { color: var(--accent); font-weight: 600; }
+
+  .showtime-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; margin-bottom: 20px; }
+  .showtime-btn {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s;
+  }
+  .showtime-btn:hover { border-color: var(--accent); }
+  .showtime-btn.selected { background: rgba(255,60,95,0.1); border-color: var(--accent); }
+  .showtime-btn.priority { border-color: rgba(255,209,102,0.4); background: rgba(255,209,102,0.05); }
+  .showtime-time { font-size: 14px; font-weight: 700; }
+  .showtime-type { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .showtime-priority-label { font-size: 9px; color: var(--gold); font-family: 'Space Mono'; }
+
+  .seats-preview { display: grid; gap: 6px; margin-bottom: 20px; }
+  .seats-row { display: flex; gap: 6px; align-items: center; }
+  .seat {
+    width: 28px; height: 24px; border-radius: 5px 5px 3px 3px; cursor: pointer;
+    transition: all 0.15s; position: relative;
+  }
+  .seat.available { background: var(--surface); border: 1px solid var(--border); }
+  .seat.available:hover { background: rgba(255,60,95,0.2); border-color: var(--accent); }
+  .seat.selected { background: var(--accent); border-color: var(--accent); }
+  .seat.booked { background: rgba(255,255,255,0.04); border-color: transparent; cursor: not-allowed; }
+  .seat.priority-hold { background: rgba(255,209,102,0.15); border-color: rgba(255,209,102,0.3); }
+  .seat-row-label { font-family: 'Space Mono'; font-size: 10px; color: var(--muted); width: 16px; }
+  .screen-label-div { background: linear-gradient(90deg, transparent, var(--muted), transparent); height: 2px; margin: 16px 0; }
+  .screen-text { text-align: center; font-size: 11px; color: var(--muted); font-family: 'Space Mono'; margin-bottom: 12px; }
+  .seat-legend { display: flex; gap: 20px; margin-bottom: 20px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .legend-dot { width: 16px; height: 14px; border-radius: 3px; }
+
+  .checkout-bar {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .checkout-coin-use { flex: 1; }
+  .checkout-coin-use label { font-size: 13px; font-weight: 500; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .toggle { width: 40px; height: 22px; background: var(--cyan); border-radius: 100px; position: relative; cursor: pointer; }
+  .toggle::after { content: ''; position: absolute; top: 3px; right: 3px; width: 16px; height: 16px; background: white; border-radius: 50%; }
+  .checkout-price { text-align: right; }
+  .price-original { font-size: 13px; color: var(--muted); text-decoration: line-through; }
+  .price-final { font-family: 'Bebas Neue'; font-size: 32px; color: var(--text); letter-spacing: 2px; }
+  .price-savings { font-size: 12px; color: var(--cyan); font-weight: 600; }
+
+  /* ===== QR TICKET ===== */
+  .qr-ticket-screen { max-width: 480px; margin: 40px auto; padding: 0 24px; }
+  .ticket-card {
+    background: var(--card); border-radius: 24px; overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+  }
+  .ticket-top {
+    background: linear-gradient(135deg, #1a0033, #3d0066, rgba(255,60,95,0.2));
+    padding: 32px; text-align: center; position: relative; overflow: hidden;
+  }
+  .ticket-top::before { content: ''; position: absolute; width: 200px; height: 200px; background: radial-gradient(circle, rgba(255,255,255,0.05), transparent); top: -60px; right: -60px; border-radius: 50%; }
+  .ticket-movie { font-family: 'Bebas Neue'; font-size: 36px; letter-spacing: 3px; margin-bottom: 4px; }
+  .ticket-details { font-size: 13px; color: rgba(255,255,255,0.6); }
+  .ticket-badge { display: inline-block; background: var(--accent); border-radius: 100px; padding: 4px 12px; font-size: 11px; font-weight: 700; margin-top: 12px; }
+
+  .ticket-perforated { border-top: 2px dashed var(--border); margin: 0 16px; display: flex; align-items: center; justify-content: center; }
+  .ticket-perforated::before, .ticket-perforated::after { content: ''; display: block; flex: 1; border-top: 2px dashed var(--border); }
+  .ticket-hole { width: 32px; height: 32px; background: var(--bg); border-radius: 50%; margin: -16px 0; border: 2px dashed var(--border); flex-shrink: 0; }
+
+  .ticket-bottom { padding: 32px; }
+  .qr-container {
+    background: white; border-radius: 16px; padding: 20px; margin: 0 auto 24px; width: 180px; height: 180px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qr-placeholder { 
+    width: 140px; height: 140px;
+    background: 
+      repeating-linear-gradient(0deg, transparent, transparent 10px, #000 10px, #000 11px),
+      repeating-linear-gradient(90deg, transparent, transparent 10px, #000 10px, #000 11px);
+    opacity: 0.15;
+    border-radius: 8px;
+  }
+  .qr-real {
+    width: 140px; height: 140px;
+    image-rendering: pixelated;
+  }
+  
+  .ticket-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .ticket-info-item { }
+  .ticket-info-label { font-size: 11px; color: var(--muted); font-family: 'Space Mono'; letter-spacing: 1px; margin-bottom: 4px; }
+  .ticket-info-value { font-size: 15px; font-weight: 600; }
+
+  .ticket-coin-badge {
+    background: rgba(255,209,102,0.1); border: 1px solid rgba(255,209,102,0.3);
+    border-radius: 12px; padding: 12px 16px; margin-top: 20px;
+    display: flex; align-items: center; gap: 12px; font-size: 13px;
+  }
+  .ticket-coin-badge .icon { font-size: 20px; }
+  .ticket-coin-badge .saved { font-weight: 700; color: var(--gold); }
+
+  /* ===== PROFILE SCREEN ===== */
+  .profile-screen { max-width: 700px; margin: 0 auto; padding: 40px 24px; }
+  .profile-header { display: flex; align-items: center; gap: 24px; margin-bottom: 40px; }
+  .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--purple)); display: flex; align-items: center; justify-content: center; font-size: 32px; flex-shrink: 0; }
+  .profile-name { font-family: 'Bebas Neue'; font-size: 40px; letter-spacing: 2px; line-height: 1; }
+  .profile-handle { font-family: 'Space Mono'; font-size: 13px; color: var(--muted); }
+  .ambassador-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,209,102,0.1); border: 1px solid rgba(255,209,102,0.3); border-radius: 100px; padding: 4px 12px; font-size: 12px; color: var(--gold); margin-top: 8px; }
+
+  .profile-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .profile-stat { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; text-align: center; }
+  .profile-stat-val { font-family: 'Bebas Neue'; font-size: 32px; letter-spacing: 2px; }
+  .profile-stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  .badges-section { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+  .badges-title { font-family: 'Bebas Neue'; font-size: 22px; letter-spacing: 2px; margin-bottom: 16px; }
+  .badges-grid { display: flex; gap: 16px; flex-wrap: wrap; }
+  .badge-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .badge-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+  .badge-icon.earned { background: rgba(255,209,102,0.1); border: 1px solid rgba(255,209,102,0.3); }
+  .badge-icon.locked { background: var(--surface); border: 1px solid var(--border); filter: grayscale(1) opacity(0.4); }
+  .badge-name { font-size: 11px; color: var(--muted); text-align: center; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .auth-screen { grid-template-columns: 1fr; }
+    .auth-left { display: none; }
+    .home-layout { grid-template-columns: 1fr; }
+    .sidebar, .right-panel { display: none; }
+    .hiw-steps { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .profile-stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .screen.active > * { animation: fadeUp 0.4s ease both; }
+  .screen.active > *:nth-child(2) { animation-delay: 0.05s; }
+  .screen.active > *:nth-child(3) { animation-delay: 0.1s; }
+  .screen.active > *:nth-child(4) { animation-delay: 0.15s; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 100px; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Fan<span>Verse</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showScreen('splash')">Splash</button>
+    <button class="nav-tab" onclick="showScreen('register')">Register</button>
+    <button class="nav-tab" onclick="showScreen('home')">Home Feed</button>
+    <button class="nav-tab" onclick="showScreen('wallet')">Wallet</button>
+    <button class="nav-tab" onclick="showScreen('referral')">Referral</button>
+    <button class="nav-tab" onclick="showScreen('tickets')">Tickets</button>
+    <button class="nav-tab" onclick="showScreen('qr')">QR Pass</button>
+    <button class="nav-tab" onclick="showScreen('profile')">Profile</button>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- ==================== SPLASH ==================== -->
+  <div id="splash" class="screen active">
+    <div class="splash">
+      <div class="splash-badge">🎬 Fan Engagement Platform</div>
+      <div class="splash-title">
+        <span class="line1">FAN</span>
+        <span class="line2">VERSE</span>
+      </div>
+      <p class="splash-sub">Refer friends. Earn coins. Get priority tickets. Be the ultimate fan.</p>
+      <div class="splash-actions">
+        <button class="btn-primary" onclick="showScreen('register')">Join the Fandom →</button>
+        <button class="btn-ghost" onclick="showScreen('home')">Explore Events</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== REGISTER ==================== -->
+  <div id="register" class="screen">
+    <div class="auth-screen">
+      <div class="auth-left">
+        <div class="auth-movie-card">
+          <div class="movie-poster">MOVIE POSTER</div>
+          <div class="auth-movie-info">
+            <h3>Kalki 2.0 — Fan Event</h3>
+            <p>📍 Hyderabad • 200 seats available</p>
+          </div>
+        </div>
+        <div class="referral-invite">
+          <div class="invite-label">🎟 You were invited by</div>
+          <p><span class="inviter">@ravi_k</span> invited you to the exclusive fan screening. Register to claim your priority seat!</p>
+        </div>
+      </div>
+      <div class="auth-right">
+        <h2>Create Account</h2>
+        <p class="subtitle">Join the fan community & unlock exclusive perks</p>
+
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input class="form-input" type="text" placeholder="Enter your name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input class="form-input" type="tel" placeholder="+91 99999 99999">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" type="email" placeholder="you@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label referral-field-label">🔗 Referral Code (Auto-filled)</label>
+          <input class="form-input referral-field" type="text" value="RAVI_K_FAN42" readonly>
+        </div>
+        <button class="btn-primary" style="width:100%;margin-top:8px;border-radius:12px;" onclick="showScreen('home')">Create Account & Join Event</button>
+
+        <div style="text-align:center;margin-top:20px;font-size:13px;color:var(--muted)">Already have an account? <span style="color:var(--accent);cursor:pointer">Sign In</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== HOME FEED ==================== -->
+  <div id="home" class="screen">
+    <div class="home-layout">
+
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-section">
+          <div class="wallet-mini">
+            <div class="wallet-mini-label">⬡ My Coins</div>
+            <div class="wallet-mini-amount">2,450</div>
+            <div class="wallet-mini-sub">≈ ₹245 value</div>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-label">Menu</div>
+          <div class="sidebar-item active"><span class="sidebar-icon">🏠</span>Home</div>
+          <div class="sidebar-item" onclick="showScreen('tickets')"><span class="sidebar-icon">🎟</span>My Tickets</div>
+          <div class="sidebar-item" onclick="showScreen('wallet')"><span class="sidebar-icon">👛</span>Wallet</div>
+          <div class="sidebar-item" onclick="showScreen('referral')"><span class="sidebar-icon">🔗</span>Referrals</div>
+          <div class="sidebar-item" onclick="showScreen('profile')"><span class="sidebar-icon">👤</span>Profile</div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-label">Explore</div>
+          <div class="sidebar-item"><span class="sidebar-icon">🎬</span>Movies</div>
+          <div class="sidebar-item"><span class="sidebar-icon">🎵</span>Concerts</div>
+          <div class="sidebar-item"><span class="sidebar-icon">🎭</span>Plays</div>
+          <div class="sidebar-item"><span class="sidebar-icon">🏟</span>Sports</div>
+        </div>
+      </div>
+
+      <!-- Feed -->
+      <div class="feed">
+        <!-- Stories -->
+        <div class="stories-row">
+          <div class="story-item">
+            <div class="story-ring"><div class="story-inner">🎬</div></div>
+            <div class="story-name">Kalki 2.0</div>
+          </div>
+          <div class="story-item">
+            <div class="story-ring" style="background:linear-gradient(135deg,var(--cyan),var(--purple))"><div class="story-inner">🎵</div></div>
+            <div class="story-name">Arijit Live</div>
+          </div>
+          <div class="story-item">
+            <div class="story-ring" style="background:linear-gradient(135deg,var(--gold),orange)"><div class="story-inner">🎭</div></div>
+            <div class="story-name">Pushpa 3</div>
+          </div>
+          <div class="story-item">
+            <div class="story-ring" style="background:linear-gradient(135deg,#06d6a0,#007744)"><div class="story-inner">🏟</div></div>
+            <div class="story-name">IPL Final</div>
+          </div>
+          <div class="story-item">
+            <div class="story-ring" style="background:linear-gradient(135deg,#3333ff,#7c3aed)"><div class="story-inner">🎶</div></div>
+            <div class="story-name">NH7 Fest</div>
+          </div>
+        </div>
+
+        <!-- Event Card 1 -->
+        <div class="event-card">
+          <div class="event-banner">
+            <div class="event-type-badge">🎬 MOVIE</div>
+            <div class="event-live-badge"><div class="live-dot"></div>REGISTERING</div>
+            <div>
+              <h2>KALKI 2.0</h2>
+              <p>Fan Screening • Grand Launch Event</p>
+            </div>
+          </div>
+          <div class="event-body">
+            <div class="event-meta">
+              <div class="meta-item">📅 March 15, 2025</div>
+              <div class="meta-item">📍 Hyderabad</div>
+              <div class="meta-item">👥 3,240 registered</div>
+              <div class="meta-item highlight">⚡ Priority window: 2 days</div>
+            </div>
+            <div class="event-actions">
+              <button class="btn-sm btn-accent" onclick="showScreen('tickets')">Book Tickets</button>
+              <button class="btn-sm btn-outline">Watch Teaser</button>
+              <button class="btn-sm btn-outline referral-btn" onclick="showScreen('referral')">🔗 Invite & Earn</button>
+              <div class="coin-reward">⬡ +50 per referral</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Event Card 2 -->
+        <div class="event-card">
+          <div class="event-banner event-banner-2">
+            <div class="event-type-badge">🎵 CONCERT</div>
+            <div>
+              <h2>ARIJIT SINGH LIVE</h2>
+              <p>Exclusive Fan Event • Mumbai</p>
+            </div>
+          </div>
+          <div class="event-body">
+            <div class="event-meta">
+              <div class="meta-item">📅 April 2, 2025</div>
+              <div class="meta-item">📍 DY Patil Stadium</div>
+              <div class="meta-item">👥 12,000 capacity</div>
+            </div>
+            <div class="event-actions">
+              <button class="btn-sm btn-accent">Register Now</button>
+              <button class="btn-sm btn-outline referral-btn" onclick="showScreen('referral')">🔗 Invite & Earn</button>
+              <div class="coin-reward">⬡ +80 per referral</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Event Card 3 -->
+        <div class="event-card">
+          <div class="event-banner event-banner-3">
+            <div class="event-type-badge">🎭 FILM</div>
+            <div>
+              <h2>PUSHPA 3</h2>
+              <p>Teaser Drop + Fan Meetup</p>
+            </div>
+          </div>
+          <div class="event-body">
+            <div class="event-meta">
+              <div class="meta-item">📅 May 18, 2025</div>
+              <div class="meta-item">📍 Chennai</div>
+              <div class="meta-item">🏆 Top 100 fans get VIP passes</div>
+            </div>
+            <div class="event-actions">
+              <button class="btn-sm btn-accent">Join Waitlist</button>
+              <button class="btn-sm btn-outline">View Details</button>
+              <div class="coin-reward">⬡ +100 per referral</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="right-panel">
+        <div class="panel-card">
+          <div class="panel-title">🏆 Top Referrers</div>
+          <div class="leaderboard-item">
+            <div class="lb-rank gold">1</div>
+            <div class="lb-avatar">👑</div>
+            <div class="lb-info"><div class="lb-name">@priya_s</div><div class="lb-refs">42 referrals</div></div>
+            <div class="lb-coins">⬡ 4,200</div>
+          </div>
+          <div class="leaderboard-item">
+            <div class="lb-rank silver">2</div>
+            <div class="lb-avatar" style="background:linear-gradient(135deg,#666,#999)">🎯</div>
+            <div class="lb-info"><div class="lb-name">@arjun_k</div><div class="lb-refs">38 referrals</div></div>
+            <div class="lb-coins">⬡ 3,800</div>
+          </div>
+          <div class="leaderboard-item">
+            <div class="lb-rank bronze">3</div>
+            <div class="lb-avatar" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">⚡</div>
+            <div class="lb-info"><div class="lb-name">@kiran_v</div><div class="lb-refs">31 referrals</div></div>
+            <div class="lb-coins">⬡ 3,100</div>
+          </div>
+          <div class="leaderboard-item" style="background:rgba(255,60,95,0.05);border-radius:10px;padding:10px;">
+            <div class="lb-rank" style="color:var(--accent)">24</div>
+            <div class="lb-avatar">😊</div>
+            <div class="lb-info"><div class="lb-name">You</div><div class="lb-refs">8 referrals</div></div>
+            <div class="lb-coins" style="color:var(--accent)">⬡ 800</div>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-title">⚡ Quick Actions</div>
+          <button class="btn-primary" style="width:100%;border-radius:10px;margin-bottom:10px" onclick="showScreen('referral')">🔗 Share My Invite Link</button>
+          <button class="btn-outline" style="width:100%;border-radius:10px;margin-bottom:10px;padding:12px" onclick="showScreen('wallet')">👛 View Wallet</button>
+          <button class="btn-outline" style="width:100%;border-radius:10px;padding:12px" onclick="showScreen('qr')">📱 My QR Pass</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== WALLET ==================== -->
+  <div id="wallet" class="screen">
+    <div class="wallet-screen">
+      <div class="wallet-hero">
+        <div class="wallet-hero-label">⬡ COIN BALANCE</div>
+        <div class="wallet-balance">2,450</div>
+        <div class="wallet-balance-sub">Fan Coins</div>
+        <div class="wallet-value">≈ ₹245 Redeemable Value</div>
+        <div class="wallet-actions">
+          <div class="wallet-action-btn"><div class="wallet-action-icon">🎟</div>Book Tickets</div>
+          <div class="wallet-action-btn" onclick="showScreen('referral')"><div class="wallet-action-icon">🔗</div>Earn More</div>
+          <div class="wallet-action-btn"><div class="wallet-action-icon">💰</div>Redeem Cash</div>
+          <div class="wallet-action-btn"><div class="wallet-action-icon">🛍</div>Shop Merch</div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value accent">₹640</div>
+          <div class="stat-label">Total Saved on Tickets</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value cyan">24</div>
+          <div class="stat-label">Friends Referred</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value gold">4,800</div>
+          <div class="stat-label">Coins Ever Earned</div>
+        </div>
+      </div>
+
+      <div class="transactions">
+        <div class="tx-header">Transaction History</div>
+        <div class="tx-item">
+          <div class="tx-icon earn">🔗</div>
+          <div class="tx-info"><div class="tx-title">Referral Bonus — @sneha_m joined</div><div class="tx-date">Today, 2:30 PM</div></div>
+          <div class="tx-amount plus">+50 ⬡</div>
+        </div>
+        <div class="tx-item">
+          <div class="tx-icon spend">🎟</div>
+          <div class="tx-info"><div class="tx-title">Ticket Booking — Kalki 2.0</div><div class="tx-date">Yesterday, 7:15 PM</div></div>
+          <div class="tx-amount minus">-200 ⬡</div>
+        </div>
+        <div class="tx-item">
+          <div class="tx-icon earn">🔗</div>
+          <div class="tx-info"><div class="tx-title">Referral Bonus — @rahul_p joined</div><div class="tx-date">Mar 10, 11:00 AM</div></div>
+          <div class="tx-amount plus">+50 ⬡</div>
+        </div>
+        <div class="tx-item">
+          <div class="tx-icon bonus">🏆</div>
+          <div class="tx-info"><div class="tx-title">Leaderboard Bonus — Top 25 this week</div><div class="tx-date">Mar 9, 12:00 PM</div></div>
+          <div class="tx-amount plus">+200 ⬡</div>
+        </div>
+        <div class="tx-item">
+          <div class="tx-icon earn">✅</div>
+          <div class="tx-info"><div class="tx-title">Attendance Bonus — Arijit Singh Event</div><div class="tx-date">Mar 5, 8:00 PM</div></div>
+          <div class="tx-amount plus">+150 ⬡</div>
+        </div>
+        <div class="tx-item">
+          <div class="tx-icon spend">💰</div>
+          <div class="tx-info"><div class="tx-title">Cash Redemption via UPI</div><div class="tx-date">Mar 1, 3:00 PM</div></div>
+          <div class="tx-amount minus">-500 ⬡ → ₹50</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== REFERRAL ==================== -->
+  <div id="referral" class="screen">
+    <div class="referral-screen">
+      <div class="referral-hero">
+        <h1>REFER &<br><span>EARN</span></h1>
+        <p>Invite your friends to events. Every time they join, you get coins. The more you refer, the bigger the rewards.</p>
+        <div class="ref-link-box">
+          <div class="ref-link-text">fanverse.app/join/YOURNAME_FAN42</div>
+          <button class="copy-btn">COPY</button>
+        </div>
+        <div class="share-row">
+          <div class="share-btn">📱 WhatsApp</div>
+          <div class="share-btn">📸 Instagram</div>
+          <div class="share-btn">🐦 Twitter</div>
+          <div class="share-btn">🔗 Copy</div>
+        </div>
+      </div>
+
+      <div class="how-it-works">
+        <div class="hiw-title">How It Works</div>
+        <div class="hiw-steps">
+          <div class="hiw-step">
+            <div class="step-num">1</div>
+            <div class="step-icon">🔗</div>
+            <div class="step-title">Share Your Link</div>
+            <div class="step-desc">Send your unique referral link to friends via WhatsApp, Instagram, or anywhere.</div>
+            <div class="step-reward">Free</div>
+          </div>
+          <div class="hiw-step">
+            <div class="step-num">2</div>
+            <div class="step-icon">✅</div>
+            <div class="step-title">They Register</div>
+            <div class="step-desc">When your friend registers using your link, you instantly earn coins in your wallet.</div>
+            <div class="step-reward">⬡ +50 coins</div>
+          </div>
+          <div class="hiw-step">
+            <div class="step-num">3</div>
+            <div class="step-icon">🎟</div>
+            <div class="step-title">They Attend</div>
+            <div class="step-desc">When they actually attend the event, you earn a bonus attendance reward too.</div>
+            <div class="step-reward">⬡ +100 bonus</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ref-tree">
+        <div class="ref-tree-title">My Referral Network</div>
+        <div class="tree-node level-1">
+          <div class="tree-avatar you">😊</div>
+          <div class="tree-info"><div class="tree-name">You (Root)</div><div class="tree-status">8 direct referrals</div></div>
+          <div class="tree-earned cyan">⬡ 800 earned</div>
+        </div>
+        <div class="tree-node level-2">
+          <div class="tree-avatar l1">👤</div>
+          <div class="tree-info"><div class="tree-name">@sneha_m</div><div class="tree-status">Attended ✅ • 3 referrals</div></div>
+          <div class="tree-earned cyan">⬡ +150</div>
+        </div>
+        <div class="tree-node level-2">
+          <div class="tree-avatar l1">👤</div>
+          <div class="tree-info"><div class="tree-name">@rahul_p</div><div class="tree-status">Registered • 1 referral</div></div>
+          <div class="tree-earned cyan">⬡ +50</div>
+        </div>
+        <div class="tree-node level-2">
+          <div class="tree-avatar l2">👤</div>
+          <div class="tree-info"><div class="tree-name">@deepa_k</div><div class="tree-status">Attended ✅ • 0 referrals</div></div>
+          <div class="tree-earned gold">⬡ +100</div>
+        </div>
+        <div class="tree-node level-2">
+          <div class="tree-avatar l1" style="opacity:0.5">👤</div>
+          <div class="tree-info"><div class="tree-name">@vijay_r</div><div class="tree-status" style="color:var(--accent)">Invited — pending</div></div>
+          <div class="tree-earned" style="color:var(--muted)">⬡ pending</div>
+        </div>
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;">
+        <div style="font-family:'Bebas Neue';font-size:22px;letter-spacing:2px;margin-bottom:16px;">Coin Rewards Table</div>
+        <div style="display:grid;gap:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--surface);border-radius:10px;">
+            <span style="font-size:14px;">Friend registers with your link</span>
+            <span style="font-family:'Space Mono';color:var(--cyan);font-size:13px;">⬡ +50</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--surface);border-radius:10px;">
+            <span style="font-size:14px;">Friend attends the event</span>
+            <span style="font-family:'Space Mono';color:var(--cyan);font-size:13px;">⬡ +100</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--surface);border-radius:10px;">
+            <span style="font-size:14px;">Your referral refers someone else</span>
+            <span style="font-family:'Space Mono';color:var(--gold);font-size:13px;">⬡ +25</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:rgba(255,209,102,0.05);border:1px solid rgba(255,209,102,0.2);border-radius:10px;">
+            <span style="font-size:14px;font-weight:600;">Top 10 referrer this week</span>
+            <span style="font-family:'Space Mono';color:var(--gold);font-size:13px;font-weight:700;">⬡ +500 BONUS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TICKETS ==================== -->
+  <div id="tickets" class="screen">
+    <div class="ticket-screen">
+      <div class="priority-banner">
+        <div class="priority-icon">⚡</div>
+        <div class="priority-text">
+          <h3>Priority Booking Window Open!</h3>
+          <p>You have early access before general public. Seats are being held for registered fans.</p>
+        </div>
+        <div class="priority-timer">
+          <div class="priority-timer-label">CLOSES IN</div>
+          <div class="priority-timer-val">23:14:08</div>
+        </div>
+      </div>
+
+      <div class="movie-booking-card">
+        <div class="booking-header">
+          <div class="booking-poster">KALKI 2.0</div>
+          <div class="booking-info">
+            <div class="booking-title">KALKI 2.0</div>
+            <div class="booking-meta">
+              <span>🎬 Sci-Fi / Action</span>
+              <span>⏱ 2h 48m</span>
+              <span>🌟 U/A</span>
+              <span class="highlight">⚡ Priority Access</span>
+            </div>
+
+            <div style="font-size:13px;color:var(--muted);margin-bottom:12px;font-weight:500;">Select Showtime</div>
+            <div class="showtime-grid">
+              <div class="showtime-btn priority">
+                <div class="showtime-time">10:00</div>
+                <div class="showtime-type">4DX</div>
+                <div class="showtime-priority-label">⬡ PRIORITY</div>
+              </div>
+              <div class="showtime-btn selected">
+                <div class="showtime-time">13:30</div>
+                <div class="showtime-type">IMAX</div>
+                <div class="showtime-priority-label">⬡ PRIORITY</div>
+              </div>
+              <div class="showtime-btn">
+                <div class="showtime-time">17:00</div>
+                <div class="showtime-type">2D</div>
+              </div>
+              <div class="showtime-btn">
+                <div class="showtime-time">20:30</div>
+                <div class="showtime-type">2D</div>
+              </div>
+              <div class="showtime-btn">
+                <div class="showtime-time">23:00</div>
+                <div class="showtime-type">2D</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:24px;border-top:1px solid var(--border)">
+          <div class="screen-text">◀ SCREEN ▶</div>
+          <div class="screen-label-div"></div>
+
+          <div class="seat-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--surface);border:1px solid var(--border)"></div>Available</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Selected</div>
+            <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.04)"></div>Booked</div>
+            <div class="legend-item"><div class="legend-dot" style="background:rgba(255,209,102,0.15);border:1px solid rgba(255,209,102,0.3)"></div>Priority Hold</div>
+          </div>
+
+          <div class="seats-preview">
+            <div class="seats-row"><div class="seat-row-label">A</div>
+              <div class="seat priority-hold"></div><div class="seat priority-hold"></div><div class="seat priority-hold"></div><div class="seat available"></div><div class="seat booked"></div><div class="seat booked"></div><div class="seat available"></div><div class="seat available"></div>
+            </div>
+            <div class="seats-row"><div class="seat-row-label">B</div>
+              <div class="seat booked"></div><div class="seat selected"></div><div class="seat selected"></div><div class="seat available"></div><div class="seat available"></div><div class="seat booked"></div><div class="seat booked"></div><div class="seat available"></div>
+            </div>
+            <div class="seats-row"><div class="seat-row-label">C</div>
+              <div class="seat available"></div><div class="seat available"></div><div class="seat booked"></div><div class="seat booked"></div><div class="seat available"></div><div class="seat available"></div><div class="seat available"></div><div class="seat booked"></div>
+            </div>
+            <div class="seats-row"><div class="seat-row-label">D</div>
+              <div class="seat booked"></div><div class="seat booked"></div><div class="seat available"></div><div class="seat available"></div><div class="seat selected"></div><div class="seat available"></div><div class="seat booked"></div><div class="seat booked"></div>
+            </div>
+          </div>
+
+          <div class="checkout-bar">
+            <div class="checkout-coin-use">
+              <label>Use Coins for Discount
+                <div class="toggle"></div>
+              </label>
+              <div style="font-size:12px;color:var(--muted)">200 coins = ₹20 off · You have 2,450 coins</div>
+            </div>
+            <div class="checkout-price">
+              <div class="price-original">₹900</div>
+              <div class="price-final">₹680</div>
+              <div class="price-savings">You save ₹220 (coins + fan discount)</div>
+            </div>
+            <button class="btn-sm btn-accent" onclick="showScreen('qr')">Confirm →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== QR PASS ==================== -->
+  <div id="qr" class="screen">
+    <div class="qr-ticket-screen">
+      <div style="text-align:center;margin-bottom:24px;">
+        <div style="font-family:'Bebas Neue';font-size:40px;letter-spacing:3px;">YOUR TICKET</div>
+        <div style="color:var(--muted);font-size:14px;">Show this QR code at entry</div>
+      </div>
+
+      <div class="ticket-card">
+        <div class="ticket-top">
+          <div class="ticket-movie">KALKI 2.0</div>
+          <div class="ticket-details">Fan Screening • Hyderabad • March 15</div>
+          <div class="ticket-badge">⚡ PRIORITY PASS</div>
+        </div>
+
+        <div style="display:flex;align-items:center;padding:0 16px;">
+          <div style="flex:1;border-top:2px dashed var(--border)"></div>
+          <div style="width:32px;height:32px;background:var(--bg);border-radius:50%;margin:-1px 8px;border:2px dashed var(--border);flex-shrink:0"></div>
+          <div style="flex:1;border-top:2px dashed var(--border)"></div>
+        </div>
+
+        <div class="ticket-bottom">
+          <div class="qr-container">
+            <!-- SVG QR Code pattern -->
+            <svg width="140" height="140" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+              <!-- Top-left finder -->
+              <rect x="8" y="8" width="35" height="35" rx="3" fill="#000"/>
+              <rect x="13" y="13" width="25" height="25" rx="2" fill="white"/>
+              <rect x="18" y="18" width="15" height="15" rx="1" fill="#000"/>
+              <!-- Top-right finder -->
+              <rect x="97" y="8" width="35" height="35" rx="3" fill="#000"/>
+              <rect x="102" y="13" width="25" height="25" rx="2" fill="white"/>
+              <rect x="107" y="18" width="15" height="15" rx="1" fill="#000"/>
+              <!-- Bottom-left finder -->
+              <rect x="8" y="97" width="35" height="35" rx="3" fill="#000"/>
+              <rect x="13" y="102" width="25" height="25" rx="2" fill="white"/>
+              <rect x="18" y="107" width="15" height="15" rx="1" fill="#000"/>
+              <!-- Data dots -->
+              <rect x="50" y="8" width="6" height="6" fill="#000"/>
+              <rect x="60" y="8" width="6" height="6" fill="#000"/>
+              <rect x="76" y="8" width="6" height="6" fill="#000"/>
+              <rect x="50" y="18" width="6" height="6" fill="#000"/>
+              <rect x="66" y="18" width="6" height="6" fill="#000"/>
+              <rect x="84" y="18" width="6" height="6" fill="#000"/>
+              <rect x="56" y="28" width="6" height="6" fill="#000"/>
+              <rect x="72" y="28" width="6" height="6" fill="#000"/>
+              <rect x="8" y="50" width="6" height="6" fill="#000"/>
+              <rect x="18" y="50" width="6" height="6" fill="#000"/>
+              <rect x="28" y="56" width="6" height="6" fill="#000"/>
+              <rect x="8" y="66" width="6" height="6" fill="#000"/>
+              <rect x="22" y="66" width="6" height="6" fill="#000"/>
+              <rect x="34" y="60" width="6" height="6" fill="#000"/>
+              <rect x="8" y="76" width="6" height="6" fill="#000"/>
+              <rect x="20" y="80" width="6" height="6" fill="#000"/>
+              <!-- Center data -->
+              <rect x="50" y="50" width="10" height="10" fill="#000"/>
+              <rect x="65" y="50" width="6" height="6" fill="#000"/>
+              <rect x="75" y="55" width="10" height="6" fill="#000"/>
+              <rect x="50" y="64" width="6" height="10" fill="#000"/>
+              <rect x="62" y="68" width="10" height="6" fill="#000"/>
+              <rect x="78" y="64" width="6" height="10" fill="#000"/>
+              <rect x="50" y="78" width="10" height="6" fill="#000"/>
+              <rect x="66" y="80" width="6" height="6" fill="#000"/>
+              <rect x="76" y="76" width="10" height="10" fill="#000"/>
+              <!-- Right data -->
+              <rect x="100" y="50" width="6" height="6" fill="#000"/>
+              <rect x="110" y="54" width="6" height="6" fill="#000"/>
+              <rect x="122" y="50" width="6" height="6" fill="#000"/>
+              <rect x="104" y="64" width="10" height="6" fill="#000"/>
+              <rect x="118" y="60" width="6" height="10" fill="#000"/>
+              <rect x="100" y="74" width="6" height="10" fill="#000"/>
+              <rect x="112" y="76" width="10" height="6" fill="#000"/>
+              <!-- Bottom data -->
+              <rect x="50" y="100" width="6" height="6" fill="#000"/>
+              <rect x="60" y="106" width="6" height="6" fill="#000"/>
+              <rect x="72" y="100" width="10" height="6" fill="#000"/>
+              <rect x="84" y="104" width="6" height="10" fill="#000"/>
+              <rect x="50" y="114" width="10" height="6" fill="#000"/>
+              <rect x="66" y="110" width="6" height="10" fill="#000"/>
+              <rect x="78" y="116" width="10" height="6" fill="#000"/>
+              <rect x="100" y="100" width="6" height="10" fill="#000"/>
+              <rect x="112" y="104" width="10" height="6" fill="#000"/>
+              <rect x="122" y="100" width="6" height="6" fill="#000"/>
+              <rect x="106" y="116" width="6" height="6" fill="#000"/>
+              <rect x="120" y="112" width="6" height="10" fill="#000"/>
+            </svg>
+          </div>
+
+          <div class="ticket-info-grid">
+            <div class="ticket-info-item">
+              <div class="ticket-info-label">MOVIE</div>
+              <div class="ticket-info-value">Kalki 2.0</div>
+            </div>
+            <div class="ticket-info-item">
+              <div class="ticket-info-label">DATE</div>
+              <div class="ticket-info-value">Mar 15, 2025</div>
+            </div>
+            <div class="ticket-info-item">
+              <div class="ticket-info-label">SHOWTIME</div>
+              <div class="ticket-info-value">1:30 PM IMAX</div>
+            </div>
+            <div class="ticket-info-item">
+              <div class="ticket-info-label">SEATS</div>
+              <div class="ticket-info-value">B2, B3, D5</div>
+            </div>
+            <div class="ticket-info-item">
+              <div class="ticket-info-label">VENUE</div>
+              <div class="ticket-info-value">PVR IMAX</div>
+            </div>
+            <div class="ticket-info-item">
+              <div class="ticket-info-label">PASS TYPE</div>
+              <div class="ticket-info-value" style="color:var(--accent)">⚡ Priority</div>
+            </div>
+          </div>
+
+          <div class="ticket-coin-badge">
+            <div class="icon">⬡</div>
+            <div>Saved <span class="saved">₹220</span> using fan coins + priority discount</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;">
+        <div style="font-family:'Bebas Neue';font-size:20px;letter-spacing:2px;margin-bottom:12px;">After Event Rewards</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.8;">
+          ✅ Attend the event → Earn <strong style="color:var(--gold)">⬡ +150 attendance bonus</strong><br>
+          📸 Post a story tagging FanVerse → Earn <strong style="color:var(--gold)">⬡ +50</strong><br>
+          ⭐ Rate the event → Earn <strong style="color:var(--gold)">⬡ +25</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PROFILE ==================== -->
+  <div id="profile" class="screen">
+    <div class="profile-screen">
+      <div class="profile-header">
+        <div class="profile-avatar">😊</div>
+        <div>
+          <div class="profile-name">Arjun Sharma</div>
+          <div class="profile-handle">@arjun_sharma · Member since Feb 2025</div>
+          <div class="ambassador-badge">⭐ Fan Ambassador</div>
+        </div>
+      </div>
+
+      <div class="profile-stats">
+        <div class="profile-stat">
+          <div class="profile-stat-val" style="color:var(--accent)">24</div>
+          <div class="profile-stat-label">Referrals</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-val" style="color:var(--gold)">2,450</div>
+          <div class="profile-stat-label">Coins</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-val" style="color:var(--cyan)">8</div>
+          <div class="profile-stat-label">Events</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-val">₹640</div>
+          <div class="profile-stat-label">Total Saved</div>
+        </div>
+      </div>
+
+      <div class="badges-section">
+        <div class="badges-title">🏅 My Badges</div>
+        <div class="badges-grid">
+          <div class="badge-item"><div class="badge-icon earned">🎬</div><div class="badge-name">First Event</div></div>
+          <div class="badge-item"><div class="badge-icon earned">🔗</div><div class="badge-name">10 Referrals</div></div>
+          <div class="badge-item"><div class="badge-icon earned">⬡</div><div class="badge-name">1000 Coins</div></div>
+          <div class="badge-item"><div class="badge-icon earned">👑</div><div class="badge-name">Ambassador</div></div>
+          <div class="badge-item"><div class="badge-icon locked">🏆</div><div class="badge-name">Top 10</div></div>
+          <div class="badge-item"><div class="badge-icon locked">💎</div><div class="badge-name">50 Referrals</div></div>
+          <div class="badge-item"><div class="badge-icon locked">🚀</div><div class="badge-name">Viral Fan</div></div>
+          <div class="badge-item"><div class="badge-icon locked">🌟</div><div class="badge-name">Legend</div></div>
+        </div>
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;">
+        <div style="font-family:'Bebas Neue';font-size:22px;letter-spacing:2px;margin-bottom:16px;">Event History</div>
+        <div style="display:grid;gap:12px;">
+          <div style="display:flex;align-items:center;gap:16px;padding:14px;background:var(--surface);border-radius:12px;">
+            <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#1a0033,#3d0066);display:flex;align-items:center;justify-content:center;font-size:20px;">🎬</div>
+            <div style="flex:1"><div style="font-size:14px;font-weight:600;">Arijit Singh Live</div><div style="font-size:12px;color:var(--muted)">Attended • March 5</div></div>
+            <div style="font-size:12px;color:var(--cyan);font-family:'Space Mono'">⬡ +150</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;padding:14px;background:var(--surface);border-radius:12px;">
+            <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#001a33,#003366);display:flex;align-items:center;justify-content:20px;font-size:20px;">🎥</div>
+            <div style="flex:1"><div style="font-size:14px;font-weight:600;">Pushpa 2 Fan Meet</div><div style="font-size:12px;color:var(--muted)">Attended • Jan 20</div></div>
+            <div style="font-size:12px;color:var(--cyan);font-family:'Space Mono'">⬡ +200</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const tabs = document.querySelectorAll('.nav-tab');
+  const order = ['splash','register','home','wallet','referral','tickets','qr','profile'];
+  const idx = order.indexOf(id);
+  if(idx >= 0 && tabs[idx]) tabs[idx].classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>

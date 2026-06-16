@@ -1,0 +1,710 @@
+RS³ FILMS
+An Emotional Journey of Love
+
+Full Implementation Guide
+Android App  ×  Admin Web Dashboard  ×  REST API  ×  Database & Media Strategy
+Version 1.0  ·  Confidential  ·  Build-Ready Reference
+ 
+01 — System Overview & Architecture
+RS³ Films is a three-layer platform: an Android app consumed by fans, a React web admin dashboard operated by the team, and a Node.js REST API that sits between them. All business logic runs on the server. The app and dashboard are purely rendering clients.
+
+Three Products. One API.
+Android App (Kotlin + Jetpack Compose)  — fan-facing mobile experience
+Admin Web Dashboard (React)             — full content and rule management
+REST API (Node.js + Express)            — single backend serving both clients
+All three share the same database and media infrastructure.
+
+How the Three Systems Talk
+Client	Communicates With	How
+Android App	REST API	HTTPS + JWT Bearer token in Authorization header. Refresh token stored in Android Keystore.
+Admin Dashboard	REST API	HTTPS + JWT in HttpOnly cookie (admin role claim). Separate /admin/* route namespace.
+REST API	PostgreSQL	Prisma ORM — parameterized queries, schema migrations, connection pooling via PgBouncer.
+REST API	Cloudinary	SDK calls for image/video upload, signed URL generation, transformations.
+REST API	Firebase	Admin SDK: OTP verification, push notifications (FCM), dynamic link creation.
+REST API	Redis	Rate limiting, short-TTL cache (app_content, offers), BullMQ job queue.
+ 
+02 — Media & Storage Strategy
+PostgreSQL is the right choice for structured relational data: users, referral chains, coin ledgers, rules, and metadata. It is the wrong choice for storing or serving binary media. Videos especially must never be stored in or served through PostgreSQL.
+
+Why PostgreSQL Is Wrong for Video & Images
+Do NOT store images or videos in PostgreSQL
+Binary columns (BYTEA) bloat the DB, slow backups, and make replication expensive.
+PostgreSQL has no CDN, no adaptive bitrate streaming, no thumbnail generation.
+Every media request going through the DB server consumes DB connections — a scarce resource.
+Serving a 50 MB video from PostgreSQL to 100 concurrent users = DB under severe IO pressure.
+Recovery time after incidents is much longer when the DB contains gigabytes of binary data.
+
+Recommended Storage Stack — Two-Database Architecture
+Use PostgreSQL for everything relational (metadata, IDs, URLs). Use a dedicated media platform for all files.
+
+Store	What it holds	Service	Why
+Relational DB	Users, rules, transactions, metadata, URLs	PostgreSQL 16	ACID, joins, foreign keys, Prisma ORM support
+Image CDN	Selfies, feed images, offer banners, splash image	Cloudinary	Auto-resize, WebP conversion, signed URLs, CDN delivery, free tier generous
+Video CDN	Feed reels, behind-the-scenes clips	Cloudinary Video	Adaptive bitrate HLS, thumbnail extraction, MP4/WebM, same API as images
+Document Cache	app_content key-values, offer list, feed metadata	Redis 7	Sub-millisecond read, avoids repeated DB queries for unchanged content
+Full-text search	Feed post search (future)	Algolia / pg FTS	Optional. Start with PostgreSQL FTS, migrate to Algolia at scale.
+
+Cloudinary — Why It Is the Right Choice
+•	Single SDK for both images and videos. Same upload API, same transformation pipeline.
+•	Adaptive Bitrate Streaming: Cloudinary auto-generates HLS (.m3u8) from uploaded MP4. ExoPlayer in the app plays it natively — smooth streaming even on slow connections.
+•	Automatic image optimisation: upload a 4K photo; Cloudinary delivers it resized + WebP to Android.
+•	Signed URLs: media never exposed publicly. Every URL has a signature + expiry. Admin-controlled access.
+•	Transformation on-the-fly: splash image delivered at exact screen resolution. Feed thumbnails generated automatically.
+•	Free tier: 25 GB storage + 25 GB bandwidth/month. More than sufficient for launch.
+•	Backup: Cloudinary backs up originals. You never lose a file.
+
+Media Flow — How it Works End-to-End
+01	Admin uploads image or video from the Admin Dashboard (drag & drop).
+02	Browser sends the file directly to Cloudinary via a signed upload preset (no API server involved — reduces latency and server load).
+03	Cloudinary returns the permanent public_id and secure_url.
+04	Dashboard sends the secure_url to the API (POST /admin/feed or PATCH /admin/app-content/:key).
+05	API stores only the URL string in PostgreSQL. Zero binary data in the DB.
+06	App calls GET /feed. API returns the URL from PostgreSQL.
+07	App loads the image/video directly from Cloudinary CDN — API server is not in the media path.
+08	For video: Cloudinary URL is an HLS manifest. ExoPlayer streams it adaptively.
+
+Cloudinary Setup (one-time)
+Create account at cloudinary.com (free tier).
+Create two upload presets: rs3-admin (signed, for admin dashboard uploads) and rs3-user (signed, for selfie uploads).
+Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET in server .env.
+Install SDK: npm install cloudinary.
+For video: enable Adaptive Streaming add-on (free tier available).
+ 
+03 — Complete Database Schema (PostgreSQL)
+PostgreSQL stores only metadata, rules, identifiers, and media URLs — never binary files. All tables, columns, types, and relationships are defined below with implementation notes.
+
+Schema Diagram — Table Relationships
+users	Central table. Every other table FKs back to users.
+referral_chains	Many-to-many: referrer_id → referee_id per level. Derived from users.
+coin_transactions	Append-only ledger per user. coin_balance on users is derived from this.
+point_rules	Admin-configurable. Server reads on every registration to determine chain depth + coin amounts.
+feed_posts	Admin-created content. Stores layout type + Cloudinary URL, no binary.
+offers	Admin-created. Generalised model: ticket / coupon / event pass.
+offer_redemptions	Records each user claim. FK to users + offers.
+app_content	CMS key-value store. Every configurable string/image/number in the app.
+admin_users	Separate from users. Admin dashboard accounts with roles.
+wallet_ledger	View (not table). Aggregates coin_transactions per user for display.
+
+Table: users
+Column	Type / Constraint	Notes
+id	SERIAL PRIMARY KEY	Auto-increment. Referenced by almost every other table.
+name	VARCHAR(100) NOT NULL	Legal full name.
+phone	VARCHAR(20) UNIQUE NOT NULL	10-digit Indian mobile. Unique constraint prevents duplicate accounts.
+email	VARCHAR(100) UNIQUE NOT NULL	Used for login. Unique.
+gender	VARCHAR(20)	Male / Female / Non-binary / Prefer not to say
+dob	DATE	Used to verify age ≥ 13. Server-validated on registration.
+referral_code	VARCHAR(50) UNIQUE NOT NULL	Generated server-side. Format RS3_XXXXXX. Never null after registration.
+referred_by_code	VARCHAR(50) NOT NULL	Mandatory. The code the user entered. Retained for audit.
+referred_by_user_id	INT REFERENCES users(id)	Resolved from referred_by_code by server. FK back to this table (self-referential).
+address_line	VARCHAR(255)	
+city	VARCHAR(100)	Auto-populated from pincode on server via India Post API.
+state	VARCHAR(100)	
+pincode	VARCHAR(20)	
+password	VARCHAR(255) NOT NULL	bcrypt hashed. Cost factor 12. Never returned in any response.
+selfie_url	TEXT	Cloudinary secure_url. Set by server after upload. Never binary in DB.
+otp_verified	BOOLEAN DEFAULT FALSE	Coin rewards released only when this is TRUE.
+coin_balance	INTEGER DEFAULT 0	Denormalized for fast reads. Reconciled nightly from coin_transactions via cron job.
+status	VARCHAR(20) DEFAULT 'pending'	pending / verified / ambassador / suspended
+fcm_token	TEXT	Firebase push token. Updated on every login.
+created_at	TIMESTAMPTZ DEFAULT NOW()	Server-set. Never from client.
+updated_at	TIMESTAMPTZ DEFAULT NOW()	Auto-updated via trigger.
+
+Table: referral_chains
+Stores the resolved referral tree. One row per referrer-referee pair per level. Max level_number is derived from active point_rules — no hardcoded depth.
+
+Column	Type	Notes
+id	SERIAL PK	
+referrer_id	INT FK users(id)	The person who receives the coin reward.
+referee_id	INT FK users(id)	The newly registered user.
+level	INTEGER NOT NULL	1 = direct, 2 = one level up, 3 = two levels up. Max = MAX(level_number) from active referral_level rules.
+reward_coins	INTEGER	Snapshot of coins at time of registration. Preserved even if admin changes the rule later.
+status	VARCHAR(20)	pending / awarded / cancelled
+rewarded_at	TIMESTAMPTZ	When coins were actually credited (after OTP verification).
+created_at	TIMESTAMPTZ	Server-set.
+
+Table: coin_transactions
+Append-only ledger. NEVER update or delete rows. coin_balance on users table = SUM of this table per user. This is your audit trail.
+
+Column	Type	Notes
+id	SERIAL PK	
+user_id	INT FK users(id)	Who this entry belongs to.
+type	VARCHAR(40)	earned_referral_l1 / earned_referral_l2 / earned_referral_l3 / earned_bonus / redeemed_offer / admin_adjustment / reversed
+coins	INTEGER NOT NULL	Positive = credit, negative = debit.
+reference_id	INTEGER	FK to referral_chains.id, offer_redemptions.id, or admin_actions.id depending on type.
+note	TEXT	Human-readable. Shown in app transaction history.
+created_by	INT FK users(id)	admin_users.id for admin_adjustment type. NULL for system events.
+created_at	TIMESTAMPTZ	Server-set.
+
+Table: point_rules
+Admin-configurable via dashboard. Server reads this at every registration. No values are hardcoded in application code.
+
+Column	Type	Notes
+id	SERIAL PK	
+rule_key	VARCHAR(60) UNIQUE	Snake_case identifier. e.g. referral_l1, referral_l4, profile_complete, first_event. Admin-defined.
+label	VARCHAR(100)	Display name in admin panel and app transaction history.
+coins	INTEGER NOT NULL	Editable by admin at any time. Effective for all future events immediately.
+rule_type	VARCHAR(30)	referral_level / registration_bonus / event_bonus / custom
+level_number	INTEGER	For referral_level type: 1, 2, 3, 4... Determines chain depth. NULL for non-chain rules.
+active	BOOLEAN DEFAULT TRUE	Inactive rules skipped. Setting referral_l3 to false reduces chain to L2.
+description	TEXT	Admin-facing description.
+updated_by	INT FK admin_users	
+updated_at	TIMESTAMPTZ	
+
+Table: feed_posts
+Every post visible in the app's home feed. Media is stored in Cloudinary; only the URL is in PostgreSQL.
+
+Column	Type	Notes
+id	SERIAL PK	
+layout	VARCHAR(30)	hero / card / reel / banner / update / grid2. App renders accordingly.
+title	TEXT	
+subtitle	TEXT	Optional tagline.
+body	TEXT	Rich text / markdown content.
+media_url	TEXT	Cloudinary secure_url. For video: HLS .m3u8 manifest URL. Zero binary in DB.
+thumbnail_url	TEXT	Auto-generated by Cloudinary for video posts. Used as poster frame.
+link_url	TEXT	External link for content_type=link.
+content_type	VARCHAR(20)	image / video / text / link
+status	VARCHAR(20)	draft / live / scheduled
+scheduled_at	TIMESTAMPTZ	Nullable. BullMQ job fires at this time to set status=live.
+author_id	INT FK admin_users	
+created_at	TIMESTAMPTZ	
+updated_at	TIMESTAMPTZ	
+
+Table: offers
+Generalised offer model. Covers movie tickets, event passes, coupon codes, merchandise, custom rewards. No cash/bank integration.
+
+Column	Type	Notes
+id	SERIAL PK	
+title	TEXT	e.g. 'Free Movie Ticket on 5 Referrals'
+description	TEXT	Full offer description shown in app.
+image_url	TEXT	Offer banner. Cloudinary URL.
+reward_type	VARCHAR(30)	movie_ticket / event_pass / coupon_code / merchandise / custom
+reward_value	TEXT	The actual coupon code, ticket reference, or pass code delivered to user on claim.
+coin_cost	INTEGER DEFAULT 0	Coins deducted from user on claim. 0 = free/milestone-based.
+target_referrals	INTEGER	NULL if coin-cost offer. Set if milestone-based (e.g. 5 = refer 5 to unlock).
+page	VARCHAR(20)	referral / wallet / home / global — controls which screens show this offer.
+display_order	INTEGER DEFAULT 0	Admin controls sort. Lower = shown first.
+active	BOOLEAN DEFAULT TRUE	If false, hidden in app completely.
+max_claims	INTEGER	NULL = unlimited. Atomic increment check prevents over-claiming.
+claims_count	INTEGER DEFAULT 0	Server-incremented on each redemption. Never trust client.
+valid_from	TIMESTAMPTZ	Optional start date.
+valid_until	TIMESTAMPTZ	Optional expiry. Server checks on every claim attempt.
+created_by	INT FK admin_users	
+created_at	TIMESTAMPTZ	
+updated_at	TIMESTAMPTZ	
+
+Table: offer_redemptions
+Column	Type	Notes
+id	SERIAL PK	
+user_id	INT FK users	
+offer_id	INT FK offers	
+coins_spent	INTEGER	Snapshot of coin_cost at time of claim.
+reward_sent	TEXT	The coupon code or ticket reference that was sent to user.
+status	VARCHAR(20)	claimed / fulfilled / expired / cancelled
+claimed_at	TIMESTAMPTZ	
+fulfilled_at	TIMESTAMPTZ	Admin-set when physically delivering ticket/pass.
+
+Table: app_content
+The app's CMS. Every configurable string, image URL, number, or boolean in the Android app and dashboard is stored here. The app fetches this table on launch and caches it locally.
+
+Column	Type	Notes
+id	SERIAL PK	
+content_key	VARCHAR(100) UNIQUE	Unique key. e.g. splash_image_url, terms_and_conditions, min_redeem_coins.
+content_type	VARCHAR(30)	text / richtext / image_url / number / url / boolean
+value	TEXT	The content. For image_url: Cloudinary URL. For richtext: HTML. For number: '200'.
+label	VARCHAR(100)	Human-friendly name shown in admin dashboard CMS editor.
+section	VARCHAR(50)	splash / onboarding / legal / contact / wallet / branding / social / system
+updated_by	INT FK admin_users	
+updated_at	TIMESTAMPTZ	
+
+Table: admin_users
+Separate from regular users. Admin dashboard accounts only. Roles control which dashboard modules are accessible.
+
+Column	Type	Notes
+id	SERIAL PK	
+name	VARCHAR(100)	
+email	VARCHAR(100) UNIQUE	Login credential.
+password	VARCHAR(255)	bcrypt hashed.
+role	VARCHAR(30)	super_admin / content / analytics / moderator
+active	BOOLEAN	Inactive accounts cannot log in.
+last_login	TIMESTAMPTZ	
+invited_by	INT FK admin_users	Super admin who sent the invite.
+created_at	TIMESTAMPTZ	
+
+Indexes to Create
+CREATE INDEX idx_users_referral_code ON users(referral_code);
+CREATE INDEX idx_users_referred_by ON users(referred_by_user_id);
+CREATE INDEX idx_referral_chains_referrer ON referral_chains(referrer_id);
+CREATE INDEX idx_referral_chains_referee ON referral_chains(referee_id);
+CREATE INDEX idx_coin_tx_user ON coin_transactions(user_id, created_at DESC);
+CREATE INDEX idx_feed_posts_status ON feed_posts(status, created_at DESC);
+CREATE INDEX idx_offers_active_page ON offers(active, page) WHERE active = true;
+CREATE INDEX idx_offer_redemptions_user ON offer_redemptions(user_id, claimed_at DESC);
+CREATE INDEX idx_app_content_key ON app_content(content_key);
+ 
+04 — Backend Implementation (Node.js API)
+The API is a Node.js Express application. It serves both the Android app and the Admin Dashboard. All business logic, calculations, and validation live here.
+
+Project Structure
+rs3-api/
+├── prisma/
+│   ├── schema.prisma        ← all table definitions
+│   └── seed.ts              ← initial point_rules and app_content rows
+├── src/
+│   ├── middleware/
+│   │   ├── auth.ts          ← JWT verify middleware
+│   │   ├── adminAuth.ts     ← Admin role check
+│   │   └── rateLimit.ts     ← Redis-backed rate limiter
+│   ├── routes/
+│   │   ├── auth.ts          ← /auth/*
+│   │   ├── user.ts          ← /user/*
+│   │   ├── feed.ts          ← /feed
+│   │   ├── offers.ts        ← /offers
+│   │   ├── wallet.ts        ← /wallet
+│   │   ├── referral.ts      ← /referral
+│   │   ├── appContent.ts    ← /app-content
+│   │   └── admin/           ← /admin/* (all admin routes)
+│   ├── services/
+│   │   ├── referralService.ts   ← chain resolution logic
+│   │   ├── coinService.ts       ← coin award & deduct
+│   │   ├── cloudinaryService.ts ← upload & signed URL helpers
+│   │   ├── fcmService.ts        ← push notification sender
+│   │   └── pinCodeService.ts    ← India Post API wrapper
+│   ├── jobs/
+│   │   ├── scheduledPosts.ts    ← BullMQ: publish feed posts at scheduled_at
+│   │   ├── offerExpiry.ts       ← BullMQ: set offers expired after valid_until
+│   │   └── coinReconcile.ts     ← Nightly: recalc coin_balance from transactions
+│   └── app.ts
+├── .env                     ← all secrets (never committed)
+└── package.json
+
+Environment Variables (.env)
+Variable	Example	Purpose
+DATABASE_URL	postgresql://user:pass@host:5432/rs3	Prisma + PostgreSQL connection
+REDIS_URL	redis://localhost:6379	Rate limiting + BullMQ + cache
+JWT_SECRET	64-char random string	Access token signing
+JWT_REFRESH_SECRET	64-char random string	Refresh token signing
+ADMIN_JWT_SECRET	64-char random string	Admin JWT signing
+FIREBASE_PROJECT_ID	rs3-films	Firebase Admin SDK
+FIREBASE_CLIENT_EMAIL	firebase-adminsdk@...iam...	Firebase Admin SDK
+FIREBASE_PRIVATE_KEY	-----BEGIN PRIVATE KEY-----...	Firebase Admin SDK
+CLOUDINARY_CLOUD_NAME	rs3films	Cloudinary SDK
+CLOUDINARY_API_KEY	123456789012345	Cloudinary SDK
+CLOUDINARY_API_SECRET	xxxx-xxxx-xxxx	Cloudinary SDK
+BCRYPT_ROUNDS	12	Password hashing cost
+PORT	3000	Server port
+
+Critical Service: Referral Chain Resolution
+This is the most important server-side function. It runs exactly once per new registration. The chain depth is dynamic — read from point_rules, not hardcoded.
+
+// referralService.ts — core chain resolution
+async function resolveReferralChain(newUserId, referredByUserId, prisma) {
+  // 1. Get active referral levels from DB
+  const levels = await prisma.pointRule.findMany({
+    where: { rule_type: 'referral_level', active: true },
+    orderBy: { level_number: 'asc' }
+  });
+  // 2. Walk up the tree — one step per active level
+  let currentUserId = referredByUserId;
+  for (const level of levels) {
+    if (!currentUserId) break;
+    // Insert chain row
+    await prisma.referralChain.create({
+      data: { referrer_id: currentUserId, referee_id: newUserId,
+              level: level.level_number, reward_coins: level.coins,
+              status: 'pending' }
+    });
+    // Move to next level up
+    const parent = await prisma.user.findUnique({
+      where: { id: currentUserId }, select: { referred_by_user_id: true }
+    });
+    currentUserId = parent?.referred_by_user_id ?? null;
+  }
+}
+
+// Called after OTP verification — releases pending coins
+async function releaseReferralCoins(newUserId, prisma) {
+  const chains = await prisma.referralChain.findMany({
+    where: { referee_id: newUserId, status: 'pending' }
+  });
+  for (const chain of chains) {
+    await prisma.$transaction([
+      prisma.coinTransaction.create({ data: {
+        user_id: chain.referrer_id, type: 'earned_referral_l'+chain.level,
+        coins: chain.reward_coins, reference_id: chain.id,
+        note: 'Referral reward — Level '+chain.level
+      }}),
+      prisma.user.update({ where: { id: chain.referrer_id },
+        data: { coin_balance: { increment: chain.reward_coins } }
+      }),
+      prisma.referralChain.update({ where: { id: chain.id },
+        data: { status: 'awarded', rewarded_at: new Date() }
+      }),
+    ]);
+  }
+}
+
+Redis Caching Strategy
+Cache Key	TTL	What is Cached
+app_content:all	24 hours	Full app_content table as JSON object. Invalidated when admin saves any CMS field.
+offers:page:{page}	5 minutes	Active offers per page (referral/wallet/home). Invalidated when admin toggles offer.
+feed:cursor:{cursor}	10 minutes	Paginated feed response. Invalidated when any post goes live.
+point_rules:active	1 hour	Active point rules. Invalidated when admin edits a rule.
+ratelimit:otp:{phone}	10 minutes	OTP request count per phone. Auto-expires.
+ratelimit:login:{ip}	1 minute	Login attempt count per IP.
+ 
+05 — Full API Reference
+All endpoints. Base URL: https://api.rs3films.com/v1. JWT Bearer token required on all endpoints except /auth/*. Admin JWT (cookie) required on /admin/* endpoints.
+
+Auth
+Endpoint	Method	Auth	Purpose
+/auth/otp/send	POST	None	Body: { phone }. Sends OTP via Firebase. Rate limited 3/phone/10min.
+/auth/otp/verify	POST	None	Body: { phone, otp }. Returns temp_token (10min, single-use JWT).
+/auth/register	POST	temp_token	Multipart: all user fields + selfie file. Server: verify OTP token, validate referral code, resolve chain, generate referral_code, upload selfie to Cloudinary.
+/auth/login	POST	None	Body: { email, password }. Returns { access_token, refresh_token, user }.
+/auth/refresh	POST	refresh	Body: { refresh_token }. Returns new access_token.
+/auth/logout	POST	JWT	Invalidates refresh token in Redis blacklist.
+/auth/forgot-password	POST	None	Body: { email }. Sends reset link.
+/auth/reset-password	POST	reset_token	Body: { token, new_password }. Validates token, bcrypt hashes new password.
+
+User & Profile
+Endpoint	Method	Auth	Purpose
+/user/me	GET	JWT	Returns full profile including coin_balance, referral_code, status, selfie_url.
+/user/me	PATCH	JWT	Update name, address, gender, dob. Triggers profile_complete bonus if first time completing all fields.
+/user/me/selfie	POST	JWT	Multipart image. Server uploads to Cloudinary, updates selfie_url.
+/user/me/stats	GET	JWT	Returns: total_referrals, direct_referrals, coins_earned, coins_spent, offers_claimed, events_attended.
+/user/referral-tree	GET	JWT	3-level (or max active depth) tree. Each node: name, join_date, level, coins_contributed.
+/user/fcm-token	PATCH	JWT	Body: { fcm_token }. Called on every app login to update push token.
+
+App Content (CMS)
+Endpoint	Method	Auth	Purpose
+/app-content	GET	JWT	Returns full key-value map. Served from Redis cache. Rebuild cache if miss.
+/admin/app-content	GET	Admin	List all items grouped by section.
+/admin/app-content/:key	PATCH	Admin	Update value. For image_url type: accepts Cloudinary URL from pre-upload. Invalidates Redis cache.
+
+Home Feed
+Endpoint	Method	Auth	Purpose
+/feed	GET	JWT	?cursor=&limit=20. Cursor-based pagination. Returns: [{ id, layout, title, subtitle, body, media_url, thumbnail_url, content_type, created_at }]. Served from Redis cache.
+/feed/:id	GET	JWT	Single post. Increment view count.
+/admin/feed	GET	Admin	All posts (all statuses). ?status=draft|live|scheduled.
+/admin/feed	POST	Admin	Body: { layout, title, subtitle, body, media_url, content_type, status, scheduled_at? }. Invalidates feed cache.
+/admin/feed/:id	PATCH	Admin	Edit any field. Setting status=live immediately appears in app. Invalidates cache.
+/admin/feed/:id	DELETE	Admin	Soft delete (set status=archived). Invalidates cache.
+
+Referral
+Endpoint	Method	Auth	Purpose
+/referral/code	GET	JWT	Returns { referral_code, share_url }. share_url is a Firebase Dynamic Link.
+/referral/tree	GET	JWT	Returns visual tree per active chain depth.
+/referral/stats	GET	JWT	{ direct_count, total_network, coins_earned, per_level: [{ level, count, coins }] }
+
+Offers
+Endpoint	Method	Auth	Purpose
+/offers	GET	JWT	?page=referral|wallet|home. Returns active offers + user progress per offer. Empty array → app hides section.
+/offers/:id	GET	JWT	Full offer detail.
+/offers/:id/redeem	POST	JWT	Server re-validates eligibility. Atomic: deduct coins + create redemption + increment claims_count. Returns { reward_type, reward_value }.
+/offers/redemptions	GET	JWT	User's own redemption history.
+/admin/offers	GET	Admin	All offers including inactive.
+/admin/offers	POST	Admin	Create offer.
+/admin/offers/:id	PATCH	Admin	Edit any field, toggle active. Invalidates offers cache.
+/admin/offers/:id	DELETE	Admin	Remove offer.
+/admin/redemptions	GET	Admin	All redemptions. ?status=claimed|fulfilled&offer_id=.
+/admin/redemptions/:id	PATCH	Admin	Mark fulfilled. Sets fulfilled_at timestamp.
+
+Wallet
+Endpoint	Method	Auth	Purpose
+/wallet/balance	GET	JWT	{ coin_balance, coins_earned_all_time, coins_spent_all_time, min_redeem (from app_content) }
+/wallet/transactions	GET	JWT	Paginated coin_transactions for this user. ?cursor=&limit=20.
+No bank/cash endpoints. Coins are spent exclusively on offers via POST /offers/:id/redeem.
+
+Points Rules (Admin)
+Endpoint	Method	Auth	Purpose
+/admin/point-rules	GET	Admin	All rules with label, coins, type, level_number, active.
+/admin/point-rules	POST	Admin	Create rule (extend chain or add bonus). Invalidates point_rules cache.
+/admin/point-rules/:id	PATCH	Admin	Update coins, label, active. Effective immediately. Invalidates cache.
+/admin/point-rules/:id	DELETE	Admin	Soft delete (active=false). Hard delete only by super_admin.
+
+Members & Admins
+Endpoint	Method	Auth	Purpose
+/admin/users	GET	Admin	Paginated member list. ?search=&status=&page=.
+/admin/users/:id	GET	Admin	Full member profile + referral tree + transaction history.
+/admin/users/:id/coins	POST	Admin	Manual coin adjustment. Body: { coins, reason }. Creates coin_transaction with type=admin_adjustment.
+/admin/users/:id/status	PATCH	Admin	Change user status (verified/ambassador/suspended).
+/admin/admins	GET	Admin	All admin accounts.
+/admin/admins	POST	Admin	Invite admin. Sends email with temp password.
+/admin/admins/:id	PATCH	Admin	Change role or deactivate.
+
+Analytics
+Endpoint	Method	Auth	Purpose
+/admin/analytics/overview	GET	Admin	Total users, active referrals, total coins, offers claimed.
+/admin/analytics/growth	GET	Admin	?period=7d|30d|90d|1y. Daily registrations + referral count time series.
+/admin/analytics/coins	GET	Admin	Daily coins issued vs spent. Top earners.
+/admin/analytics/offers	GET	Admin	Per-offer: views, claims, completion rate.
+/admin/analytics/referrals	GET	Admin	Chain depth distribution. Avg network size per user.
+ 
+06 — Android App Implementation
+Built with Kotlin and Jetpack Compose. Server-authoritative — no local business logic. The app renders what the API returns.
+
+Project Structure
+rs3-android/
+├── app/src/main/
+│   ├── data/
+│   │   ├── api/            ← Retrofit interfaces per domain
+│   │   ├── db/             ← Room DB: FeedPostEntity, AppContentEntity
+│   │   ├── repository/     ← one repo per domain
+│   │   └── model/          ← data classes matching API responses
+│   ├── di/                 ← Hilt modules: NetworkModule, DatabaseModule
+│   ├── ui/
+│   │   ├── splash/         ← SplashScreen.kt (loads splash_image_url)
+│   │   ├── onboarding/     ← OnboardingScreen.kt
+│   │   ├── auth/           ← RegisterScreen + LoginScreen
+│   │   ├── home/           ← FeedScreen + FeedPostCard composables
+│   │   ├── referral/       ← ReferralScreen + ReferralTreeScreen
+│   │   ├── wallet/         ← WalletScreen + TransactionItem
+│   │   ├── offers/         ← OfferScreen + OfferDetailScreen
+│   │   ├── profile/        ← ProfileScreen + EditProfileScreen
+│   │   ├── settings/       ← SettingsScreen (reads app_content)
+│   │   └── theme/          ← Color.kt, Type.kt, Theme.kt
+│   ├── navigation/         ← NavGraph.kt (bottom nav + deep links)
+│   └── MainViewModel.kt    ← app_content loaded here on startup
+
+Token Storage — Android Keystore
+Never store JWTs in SharedPreferences (readable by root). Use EncryptedSharedPreferences backed by Android Keystore.
+
+// TokenStore.kt
+val masterKey = MasterKey.Builder(context)
+  .setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build()
+val prefs = EncryptedSharedPreferences.create(context,
+  'rs3_secure_prefs', masterKey,
+  EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+  EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
+// Store: prefs.edit().putString('access_token', token).apply()
+// Read:  prefs.getString('access_token', null)
+
+OkHttp Interceptor — Auto JWT Refresh
+The Retrofit client uses an Authenticator that automatically refreshes the access token when a 401 is received.
+
+// TokenAuthenticator.kt
+class TokenAuthenticator(private val tokenStore, private val authApi) : Authenticator {
+  override fun authenticate(route, response): Request? {
+    val refresh = tokenStore.getRefreshToken() ?: return null
+    val newTokens = authApi.refresh(RefreshRequest(refresh)).execute()
+    if (!newTokens.isSuccessful) { /* force logout */ return null }
+    tokenStore.saveTokens(newTokens.body()!!)
+    return response.request.newBuilder()
+      .header('Authorization', 'Bearer '+newTokens.body()!!.access_token)
+      .build()
+  }
+}
+
+Splash Screen — Dynamic Image from CMS
+The splash background is fetched from app_content.splash_image_url on every cold start. Admin can change it without any app update.
+
+// SplashViewModel.kt
+init {
+  viewModelScope.launch {
+    val content = appContentRepo.getAll() // reads Room DB first, then refreshes
+    _splashImageUrl.value = content['splash_image_url'] ?: ''
+    delay(2000) // or until image is loaded
+    _navigateToNext.value = true
+  }
+}
+// SplashScreen.kt
+AsyncImage(model = splashImageUrl, contentScale = ContentScale.Crop,
+           modifier = Modifier.fillMaxSize()) // Coil loads from Cloudinary CDN
+
+Video in Feed — ExoPlayer + HLS
+Feed video posts have a media_url pointing to a Cloudinary HLS manifest (.m3u8). ExoPlayer handles adaptive streaming.
+
+// FeedVideoPlayer.kt
+val exoPlayer = remember { ExoPlayer.Builder(context).build().apply {
+  val item = MediaItem.fromUri(post.media_url) // HLS .m3u8 URL from Cloudinary
+  setMediaItem(item)
+  prepare()
+  playWhenReady = false // autoplay only when visible
+}}
+AndroidView(factory = { PlayerView(it).apply { player = exoPlayer } },
+  modifier = Modifier.fillMaxWidth().aspectRatio(9f/16f))
+// Dispose: DisposableEffect { onDispose { exoPlayer.release() } }
+
+CMS Content — Read from Room Cache
+The app fetches /app-content on login and stores in Room DB. Every screen that shows T&C, prices, labels, or contact info reads from this cache — never hardcoded strings.
+
+// AppContentRepository.kt
+suspend fun getAll(): Map<String, String> {
+  val cached = db.appContentDao().getAll()
+  val isFresh = cached.isNotEmpty() && isCacheValid(cached.first().updatedAt)
+  if (!isFresh) {
+    val fresh = api.getAppContent()
+    db.appContentDao().insertAll(fresh.map { AppContentEntity(it.key, it.value) })
+    return fresh.associate { it.key to it.value }
+  }
+  return cached.associate { it.key to it.value }
+}
+// Usage in SettingsScreen:
+val termsText = appContent['terms_and_conditions'] ?: ''
+AndroidView(factory = { WebView(it).apply { loadData(termsText,'text/html','UTF-8') } })
+
+Deep Link — Referral Code Pre-fill
+// In AndroidManifest.xml (intent-filter for Firebase Dynamic Links)
+<intent-filter android:autoVerify='true'>
+  <action android:name='android.intent.action.VIEW'/>
+  <data android:scheme='https' android:host='rs3films.page.link'/>
+</intent-filter>
+
+// In MainActivity.onCreate():
+FirebaseDynamicLinks.getInstance().getDynamicLink(intent)
+  .addOnSuccessListener { pendingData ->
+    val deepLink = pendingData?.link
+    val code = deepLink?.getQueryParameter('code')
+    if (code != null) {
+      dataStore.edit { it[REFERRAL_CODE_KEY] = code } // persist for registration
+    }
+  }
+// RegisterViewModel reads this and pre-fills the referral_code field.
+ 
+07 — Admin Dashboard Implementation (React)
+A React single-page application served as a static build. Communicates with the same API as the Android app, but via the /admin/* route namespace with a role-checked JWT.
+
+Project Structure
+rs3-admin/
+├── src/
+│   ├── api/           ← axios client + per-module API functions
+│   ├── components/    ← shared: Modal, Table, Badge, Toggle, Input
+│   ├── pages/
+│   │   ├── Dashboard.jsx
+│   │   ├── Feed.jsx          ← post list + create/edit modal
+│   │   ├── Offers.jsx        ← offer list + create/edit with trigger picker
+│   │   ├── Redemptions.jsx   ← claim tracking, mark fulfilled
+│   │   ├── PointsRules.jsx   ← chain depth + bonus rules editor
+│   │   ├── AppContent.jsx    ← CMS: grouped by section, image upload
+│   │   ├── Members.jsx       ← search + view + manual coin adjust
+│   │   ├── Admins.jsx        ← invite + role management
+│   │   └── Analytics.jsx     ← charts
+│   ├── hooks/
+│   │   └── useCloudinaryUpload.js  ← direct browser → Cloudinary upload
+│   ├── store/         ← React Context or Zustand for auth state
+│   └── App.jsx        ← routing + ProtectedRoute
+
+Direct Browser → Cloudinary Upload
+Media uploads from the admin dashboard go directly to Cloudinary — not through the API server. This reduces server load and upload latency significantly.
+
+// useCloudinaryUpload.js
+async function uploadToCloudinary(file, preset = 'rs3-admin') {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', preset);
+  const res = await fetch(
+    'https://api.cloudinary.com/v1_1/rs3films/auto/upload',
+    { method: 'POST', body: formData }
+  );
+  const data = await res.json();
+  return { secure_url: data.secure_url, public_id: data.public_id };
+}
+// Usage: admin drops image → upload to Cloudinary → get secure_url → send URL to API
+
+Admin Auth Flow
+// Admin logs in via POST /admin/auth/login
+// API returns JWT in HttpOnly, Secure, SameSite=Strict cookie
+// Dashboard never accesses the cookie directly — browser sends it automatically
+// All /admin/* requests validate this cookie + check role in JWT payload
+// On 401: redirect to /admin/login
+// Role-based rendering: super_admin sees all pages, content sees Feed/Offers/CMS only
+ 
+08 — How App & Web Stay in Sync
+This section explains exactly how each admin action in the dashboard propagates to the app in real time or near-real time.
+
+Admin Action	How It Reaches App	Time to Live
+Publish a new feed post	Redis cache invalidated. Next app feed request gets fresh data.	Immediate on next pull-to-refresh or app open.
+Change splash image URL	app_content Redis cache invalidated. Cold start fetches new URL.	Live on user's next cold start (close + reopen app).
+Edit T&C / Privacy text	app_content cache invalidated.	Live on next app launch (Room cache TTL: 24h).
+Change coin value for a rule	point_rules Redis cache invalidated.	Effective for all registrations from that moment forward.
+Add Level 4 to referral chain	Server reads updated active rules on next registration.	Immediate — next person who registers triggers L4 chain.
+Toggle offer active/inactive	offers cache invalidated.	App sees change on next /offers poll or screen open.
+Change coin_value_label	app_content cache invalidated.	App shows new label after Room cache refresh.
+Enable maintenance_mode	app_content returned immediately on next app call.	App shows maintenance screen within seconds.
+Change ambassador_threshold	app_content cache. App reads threshold from cached content.	Effective on next app launch.
+Push admin notification	FCM message sent directly via Firebase Admin SDK.	Delivered in real time via push notification.
+
+The Key Principle
+The API never pushes data to the app unprompted (except push notifications via FCM).
+The app always calls the API — on screen open, pull-to-refresh, or timer.
+Redis caching means these calls return stale data until the admin action invalidates the cache.
+For critical changes (maintenance mode, urgent announcement) — push notification + cache invalidation together = immediate reach.
+ 
+09 — Deployment & Infrastructure
+
+Recommended Stack for Launch
+Service	Provider	Notes
+API Server	Railway.app or Render.com	Containerised Node.js. Auto-deploy from GitHub. Free tier available. Scale to paid when needed.
+PostgreSQL	Supabase or Railway Postgres	Managed PostgreSQL with daily backups, connection pooling. Supabase free tier: 500 MB + REST API bonus.
+Redis	Upstash Redis	Serverless Redis. Pay per request. Perfect for rate limiting and caching at launch scale.
+Media (Images)	Cloudinary	Free tier: 25 GB storage + 25 GB bandwidth/month. Sufficient for launch.
+Media (Videos)	Cloudinary Video	Same account. Adaptive HLS streaming. Free tier covers launch volume.
+Admin Dashboard	Vercel or Netlify	Static React build. Free tier. Global CDN. Custom domain support.
+Firebase	Firebase Console (free Spark plan)	OTP (10K/month free), FCM (free), Dynamic Links (free).
+Android App	Google Play Store	One-time $25 developer account fee.
+Monitoring	Sentry (free tier)	Error tracking for API + Android app.
+
+Environment Separation
+Development	Local Docker Compose: PostgreSQL + Redis containers. Cloudinary test environment. Firebase emulator for OTP.
+Staging	Separate Railway project. Same Cloudinary account (different folder prefix). Real Firebase (test phone numbers).
+Production	Production Railway project. Production Cloudinary folder. Live Firebase. Separate PostgreSQL with backups.
+
+CI/CD Pipeline
+•	GitHub Actions: on push to main → run tests → deploy API to Railway → deploy dashboard to Vercel.
+•	Prisma migrate deploy runs automatically in Railway deploy hook.
+•	Android: GitHub Actions → build APK → upload to Play Store internal testing track.
+•	Environment secrets stored in GitHub Actions Secrets and Railway Environment Variables.
+
+Monitoring & Alerts
+•	Sentry: API error tracking (500s, unhandled exceptions). Android crash reporting.
+•	Railway metrics: CPU, memory, request volume. Set alert if error rate > 1%.
+•	Cloudinary dashboard: storage and bandwidth usage. Alert at 80% of quota.
+•	PostgreSQL: set alert if connection count > 80% of pool max.
+ 
+10 — Security Checklist
+
+API Security
+•	All endpoints validate JWT on every request — no endpoint is publicly writable.
+•	Passwords hashed with bcrypt (cost 12). Never logged, never returned in responses.
+•	All DB queries via Prisma parameterized — zero SQL injection surface.
+•	Rate limiting via Redis: OTP 3/phone/10min, login 10/IP/min, register 5/IP/hour.
+•	CORS: API only accepts requests from the app bundle ID and dashboard domain.
+•	Admin JWT in HttpOnly Secure SameSite=Strict cookie. Never in JS-accessible storage.
+•	Selfie and media URLs are Cloudinary signed URLs with expiry. Not permanent public URLs.
+
+Fraud Prevention
+•	Coin rewards issued only after otp_verified = true. Never on form submission.
+•	Self-referral: server checks referred_by_user_id !== new user's own ID.
+•	Phone uniqueness enforced at DB level (UNIQUE constraint).
+•	Offer over-claiming: max_claims checked with atomic DB increment. Race-condition safe.
+•	coin_transactions append-only. No UPDATE or DELETE on this table ever.
+•	coin_balance on users reconciled nightly from coin_transactions via cron job.
+•	Admin manual coin adjustments require a reason field and are audit-logged.
+
+Android Security
+•	JWTs stored in EncryptedSharedPreferences (Android Keystore backed AES-256).
+•	Certificate pinning: OkHttp pinned to API server's certificate. MITM protection.
+•	Network Security Config: cleartext traffic disabled (enforces HTTPS everywhere).
+•	ProGuard/R8 enabled in release builds: obfuscates class names.
+•	No secrets in APK: all API keys are server-side or fetched at runtime.
+ 
+11 — Phased Development Plan
+20-week build plan with clear deliverables per phase. Backend-first approach ensures the API is stable before Android and dashboard are built against it.
+
+Phase	Weeks	Deliverables
+1	1–2	Infra setup: Railway + Supabase + Cloudinary + Firebase. Prisma schema + migrations. Seed point_rules and app_content. Docker Compose local setup.
+2	3–4	Auth APIs: /auth/otp/send, /auth/otp/verify, /auth/register (with referral chain resolution), /auth/login, /auth/refresh, /auth/logout. JWT middleware. bcrypt.
+3	5–6	Referral engine: dynamic chain resolution from point_rules, coin_transactions ledger, coin release on OTP verify. /user/me, /user/referral-tree. Redis rate limiting.
+4	7–8	app_content CMS: table seeded with all keys, GET /app-content (with Redis cache), admin PATCH endpoint, cache invalidation. India Post pincode API integration.
+5	9–10	Feed API: POST/GET/PATCH/DELETE /admin/feed, scheduled posts via BullMQ, Cloudinary image/video upload flow, GET /feed (paginated, cached).
+6	11–12	Offers + Redemptions: generalised offer model, POST /offers/:id/redeem (atomic), offer eligibility logic, offer_redemptions tracking, admin fulfillment endpoint.
+7	13	Wallet API, analytics endpoints, FCM push notifications, Firebase Dynamic Links for referral sharing, /admin/* analytics queries.
+8	14–15	Android App Part 1: Splash (dynamic image), Onboarding, Registration (deep link pre-fill, OTP, selfie), Login, Home Feed (ExoPlayer video), Room DB cache.
+9	16–17	Android App Part 2: Referral tab, Referral Tree, Wallet tab, Offers + Claim flow, Profile, Edit Profile, Push notification handling.
+10	18	Android App Part 3: Settings (T&C / Privacy from app_content), Achievements, My Rewards, deep link interception, maintenance mode screen.
+11	19	Admin Dashboard: all 9 modules (Feed, Offers, Redemptions, Points Rules, CMS, Members, Admins, Analytics, Overview). Direct Cloudinary upload.
+12	20	QA: end-to-end testing, security audit, performance testing (load test API), Play Store submission, dashboard production deploy, monitoring setup.
+
+
+
+RS³ Films  ·  Full Implementation Guide  ·  v1.0  ·  Confidential

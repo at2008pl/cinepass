@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 36 33% 94%;
+    --foreground: 30 60% 6%;
+
+    --card: 36 30% 98%;
+    --card-foreground: 30 60% 6%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 60% 6%;
+
+    --primary: 36 60% 40%;
+    --primary-foreground: 36 30% 98%;
+
+    --secondary: 36 20% 92%;
+    --secondary-foreground: 30 50% 15%;
+
+    --muted: 36 15% 88%;
+    --muted-foreground: 30 15% 45%;
+
+    --accent: 36 80% 55%;
+    --accent-foreground: 30 60% 6%;
+
+    --destructive: 0 50% 36%;
+    --destructive-foreground: 0 60% 97%;
+
+    --border: 36 20% 88%;
+    --input: 36 20% 88%;
+    --ring: 36 60% 40%;
+
+    --radius: 0.25rem;
+
+    /* RS3 custom tokens */
+    --sidebar-bg: 30 30% 5%;
+    --sidebar-bg-alt: 30 25% 8%;
+    --sidebar-active: 30 28% 12%;
+    --sidebar-text: 36 15% 45%;
+    --sidebar-text-active: 44 75% 66%;
+
+    --gold: 36 60% 40%;
+    --gold-bright: 40 55% 54%;
+    --gold-pale: 42 80% 95%;
+    --gold-line: 38 40% 80%;
+
+    --ink: 30 60% 6%;
+    --ink-mid: 33 55% 15%;
+    --ink-light: 30 20% 40%;
+
+    --rs3-green: 150 40% 30%;
+    --rs3-green-pale: 140 40% 96%;
+    --rs3-blue: 220 50% 36%;
+    --rs3-blue-pale: 225 35% 96%;
+    --rs3-amber: 30 50% 36%;
+    --rs3-amber-pale: 30 60% 96%;
+    --rs3-purple: 270 50% 36%;
+    --rs3-purple-pale: 270 35% 96%;
+    --rs3-red: 0 50% 36%;
+    --rs3-red-pale: 0 50% 97%;
+
+    --sidebar-background: 30 30% 5%;
+    --sidebar-foreground: 36 15% 45%;
+    --sidebar-primary: 36 60% 40%;
+    --sidebar-primary-foreground: 36 30% 98%;
+    --sidebar-accent: 30 28% 12%;
+    --sidebar-accent-foreground: 44 75% 66%;
+    --sidebar-border: 30 20% 10%;
+    --sidebar-ring: 36 60% 40%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(30, 25%, 15%);
+    border-radius: 2px;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: 'DM Serif Display', serif;
+  }
+
+  .gold-gradient {
+    background: linear-gradient(135deg, hsl(36, 55%, 28%) 0%, hsl(40, 55%, 54%) 50%, hsl(44, 75%, 66%) 100%);
+  }
+
+  .gold-text {
+    background: linear-gradient(135deg, hsl(36, 55%, 28%) 0%, hsl(40, 55%, 54%) 50%, hsl(44, 75%, 66%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .fade-in {
+    animation: fadeIn 0.3s ease both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}

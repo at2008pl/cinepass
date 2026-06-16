@@ -1,0 +1,31 @@
+### Test user registration (POST)
+POST http://117.198.99.60:8085/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Preetham M",
+  "phone": "9019596120",
+  "email": "itzpreetham010@gmail.com",
+  "gender": "male",
+  "dob": "2003-08-02",
+  "referral_code": "REF2026",
+  "address_line": "123 Main St",
+  "city": "Bengaluru",
+  "state": "Karnataka",
+  "pincode": "560032",
+  "password": "Preetham",
+  "confirmPassword": "Preetham",
+  "otp": "1234"
+}
+
+### Test user registration with missing fields (should fail)
+POST http://117.198.99.60:8085/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Missing Email",
+  "phone": "9876543211",
+  "password": "testpass123",
+  "confirmPassword": "testpass123",
+  "otp": "1234"
+}

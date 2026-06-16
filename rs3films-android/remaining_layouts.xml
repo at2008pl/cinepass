@@ -1,0 +1,683 @@
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- activity_otp.xml                                           -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="32dp"
+    android:gravity="center_horizontal" android:background="@color/bg_dark">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="📱 Verify Phone" android:textSize="28sp"
+        android:textColor="#F0F0FF" android:textStyle="bold"
+        android:layout_marginTop="60dp" android:layout_marginBottom="12dp"/>
+
+    <TextView android:id="@+id/tvPhone"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textSize="14sp" android:textColor="#6B6B8A" android:layout_marginBottom="8dp"/>
+
+    <TextView android:id="@+id/tvNote"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textSize="12sp" android:textColor="#FFD166"
+        android:layout_marginBottom="32dp" android:gravity="center"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:hint="6-digit OTP"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_marginBottom="24dp">
+        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etOtp"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:inputType="number" android:maxLength="6"
+            android:textColor="#F0F0FF" android:letterSpacing="0.4" android:textSize="22sp"
+            android:gravity="center"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ProgressBar android:id="@+id/progressBar"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:visibility="gone" android:layout_marginBottom="8dp"/>
+
+    <Button android:id="@+id/btnVerify"
+        android:layout_width="match_parent" android:layout_height="56dp"
+        android:text="Verify OTP ✓"
+        android:backgroundTint="#FF3C5F"
+        android:layout_marginBottom="12dp"/>
+
+    <Button android:id="@+id/btnSkip"
+        android:layout_width="match_parent" android:layout_height="44dp"
+        android:text="Skip for now (Prototype)"
+        android:backgroundTint="#13131F"
+        android:textColor="#6B6B8A"/>
+
+</LinearLayout>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- activity_event_detail.xml                                  -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Movie hero banner -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="220dp"
+            android:background="#1a0033" android:orientation="vertical"
+            android:gravity="bottom" android:padding="20dp">
+
+            <TextView android:id="@+id/tvTagline"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="12sp" android:textColor="#A0A0CC"
+                android:fontFamily="serif" android:layout_marginBottom="4dp"/>
+
+            <TextView android:id="@+id/tvTitle"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="36sp" android:textColor="#F0F0FF"
+                android:textStyle="bold" android:fontFamily="serif"/>
+
+            <ProgressBar android:id="@+id/progressBar"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:padding="20dp">
+
+            <TextView android:id="@+id/tvCast"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="13sp" android:textColor="#6B6B8A"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView android:id="@+id/tvMovieInfo"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="13sp" android:textColor="#6B6B8A"
+                android:layout_marginBottom="12dp"/>
+
+            <TextView android:id="@+id/tvVenue"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="14sp" android:textColor="#F0F0FF"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView android:id="@+id/tvOrganizer"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="12sp" android:textColor="#6B6B8A"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView android:id="@+id/tvRegistered"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="13sp" android:textColor="#06D6A0"
+                android:layout_marginBottom="4dp"/>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:layout_marginBottom="20dp">
+                <TextView android:id="@+id/tvCoinsPerRef"
+                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:textSize="12sp" android:textColor="#FFD166"/>
+                <TextView android:id="@+id/tvAttendBonus"
+                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:textSize="12sp" android:textColor="#FFD166"/>
+            </LinearLayout>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Select Showtime" android:textSize="16sp"
+                android:textColor="#F0F0FF" android:textStyle="bold"
+                android:layout_marginBottom="12dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvShowtimes"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal"/>
+
+            <TextView android:id="@+id/tvNoShowtimes"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="No showtimes available"
+                android:textColor="#6B6B8A" android:visibility="gone"
+                android:layout_marginTop="8dp"/>
+
+            <TextView android:id="@+id/tvDescription"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="14sp" android:textColor="#A0A0CC"
+                android:layout_marginTop="16dp" android:layout_marginBottom="24dp"/>
+
+            <Button android:id="@+id/btnBookNow"
+                android:layout_width="match_parent" android:layout_height="56dp"
+                android:text="Select a showtime first"
+                android:backgroundTint="#FF3C5F"
+                android:enabled="false"/>
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- activity_seat_selection.xml                                -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/bg_dark">
+
+    <!-- Header -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:padding="16dp"
+        android:background="#0F0F1A">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:orientation="vertical">
+            <TextView android:id="@+id/tvFormat"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="16sp" android:textColor="#FF3C5F" android:textStyle="bold"/>
+            <TextView android:id="@+id/tvShowtime"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="12sp" android:textColor="#6B6B8A"/>
+        </LinearLayout>
+        <TextView android:id="@+id/tvPricePerSeat"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="16sp" android:textColor="#FFD166" android:textStyle="bold"/>
+    </LinearLayout>
+
+    <!-- Screen indicator -->
+    <TextView android:id="@+id/tvScreen"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:textSize="11sp" android:textColor="#6B6B8A"
+        android:gravity="center" android:padding="8dp"
+        android:background="#0A0A16"/>
+
+    <!-- Seat grid -->
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvSeats"
+        android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" android:padding="12dp"/>
+
+    <!-- Legend -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:padding="12dp"
+        android:gravity="center" android:background="#0F0F1A">
+        <TextView android:id="@+id/tvLegendAvailable"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="11sp" android:textColor="#6B6B8A" android:layout_marginEnd="16dp"/>
+        <TextView android:id="@+id/tvLegendSelected"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="11sp" android:textColor="#FF3C5F" android:layout_marginEnd="16dp"/>
+        <TextView android:id="@+id/tvLegendBooked"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="11sp" android:textColor="#444"/>
+    </LinearLayout>
+
+    <!-- Summary bar -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="16dp"
+        android:background="#0F0F1A">
+
+        <TextView android:id="@+id/tvSelectedSeats"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="13sp" android:textColor="#06D6A0"
+            android:layout_marginBottom="8dp"/>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+            <TextView android:id="@+id/tvCoinsAvailable"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:textSize="12sp" android:textColor="#FFD166"/>
+            <Switch android:id="@+id/switchCoins"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Use Coins" android:textColor="#F0F0FF"
+                android:thumbTint="#06D6A0" android:trackTint="#1E3A2A"/>
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical">
+                <TextView android:id="@+id/tvTotalPrice"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="13sp" android:textColor="#6B6B8A"/>
+                <TextView android:id="@+id/tvDiscount"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="12sp" android:textColor="#06D6A0"/>
+                <TextView android:id="@+id/tvFinalPrice"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="18sp" android:textColor="#FFD166"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+            <Button android:id="@+id/btnConfirm"
+                android:layout_width="wrap_content" android:layout_height="48dp"
+                android:text="Continue →"
+                android:backgroundTint="#FF3C5F"
+                android:enabled="false"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- activity_booking_confirm.xml                               -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="24dp">
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Booking Summary" android:textSize="22sp"
+            android:textColor="#F0F0FF" android:textStyle="bold"
+            android:layout_marginBottom="24dp"/>
+
+        <androidx.cardview.widget.CardView xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            app:cardBackgroundColor="#13131F" app:cardCornerRadius="16dp"
+            android:layout_marginBottom="20dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="20dp">
+
+                <TextView android:id="@+id/tvMovie"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="24sp" android:textColor="#F0F0FF"
+                    android:textStyle="bold" android:fontFamily="serif"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- Detail rows -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginBottom="8dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Format"
+                        android:textColor="#6B6B8A" android:textSize="13sp"/>
+                    <TextView android:id="@+id/tvFormat"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textColor="#FF3C5F" android:textStyle="bold" android:textSize="13sp"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginBottom="8dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Showtime"
+                        android:textColor="#6B6B8A" android:textSize="13sp"/>
+                    <TextView android:id="@+id/tvShowtime"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textColor="#F0F0FF" android:textSize="13sp"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginBottom="8dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Seats"
+                        android:textColor="#6B6B8A" android:textSize="13sp"/>
+                    <TextView android:id="@+id/tvSeats"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textColor="#06D6A0" android:textStyle="bold" android:textSize="13sp"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginBottom="16dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Seat count"
+                        android:textColor="#6B6B8A" android:textSize="13sp"/>
+                    <TextView android:id="@+id/tvSeatCount"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textColor="#F0F0FF" android:textSize="13sp"/>
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="#1E1E32" android:layout_marginBottom="12dp"/>
+
+                <!-- Pricing -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginBottom="4dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Original Price"
+                        android:textColor="#6B6B8A" android:textSize="13sp"/>
+                    <TextView android:id="@+id/tvOriginalPrice"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textColor="#F0F0FF" android:textSize="13sp"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginBottom="8dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Coin Discount"
+                        android:textColor="#6B6B8A" android:textSize="13sp"/>
+                    <TextView android:id="@+id/tvCoinDiscount"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textColor="#06D6A0" android:textSize="13sp"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="YOU PAY"
+                        android:textColor="#FFD166" android:textStyle="bold" android:textSize="16sp"/>
+                    <TextView android:id="@+id/tvFinalPrice"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textColor="#FFD166" android:textStyle="bold" android:textSize="20sp"/>
+                </LinearLayout>
+
+                <TextView android:id="@+id/tvCoinsUsed"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="11sp" android:textColor="#6B6B8A"
+                    android:layout_marginTop="8dp"/>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <ProgressBar android:id="@+id/progressBar"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:visibility="gone" android:layout_gravity="center"
+            android:layout_marginBottom="8dp"/>
+
+        <Button android:id="@+id/btnConfirmPay"
+            android:layout_width="match_parent" android:layout_height="56dp"
+            android:text="✓ Confirm &amp; Book (Prototype — No Real Payment)"
+            android:backgroundTint="#FF3C5F"
+            android:textSize="14sp"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="⚠️ Prototype: Payment is mocked. No real money charged."
+            android:textSize="11sp" android:textColor="#6B6B8A"
+            android:gravity="center" android:layout_gravity="center"
+            android:layout_marginTop="8dp"/>
+
+    </LinearLayout>
+</ScrollView>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- activity_qr_ticket.xml                                     -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <ProgressBar android:id="@+id/progressBar"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="center" android:visibility="gone"/>
+
+    <!-- Single ticket view -->
+    <ScrollView android:id="@+id/layoutSingleTicket"
+        android:layout_width="match_parent" android:layout_height="match_parent">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:padding="24dp" android:gravity="center_horizontal">
+
+            <!-- Ticket card -->
+            <androidx.cardview.widget.CardView xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                app:cardBackgroundColor="#13131F" app:cardCornerRadius="24dp"
+                android:layout_marginBottom="20dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Top purple section -->
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:padding="24dp"
+                        android:background="#1a0033" android:gravity="center">
+
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="RS³ FILMS PRESENTS"
+                            android:textSize="11sp" android:textColor="#A080CC"
+                            android:letterSpacing="0.2" android:layout_marginBottom="8dp"/>
+
+                        <TextView android:id="@+id/tvMovieTitle"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:textSize="32sp" android:textColor="#F0F0FF"
+                            android:textStyle="bold" android:fontFamily="serif"
+                            android:gravity="center"/>
+
+                        <TextView android:id="@+id/tvTagline"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:textSize="12sp" android:textColor="#A080CC"
+                            android:fontFamily="serif" android:layout_marginBottom="12dp"/>
+
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="⚡ PRIORITY PASS"
+                            android:textSize="12sp" android:textColor="#FF3C5F"
+                            android:textStyle="bold"
+                            android:background="#2A0A18"
+                            android:paddingHorizontal="16dp" android:paddingVertical="6dp"/>
+                    </LinearLayout>
+
+                    <!-- Dashed separator -->
+                    <View android:layout_width="match_parent" android:layout_height="2dp"
+                        android:background="#1E1E32"/>
+
+                    <!-- QR section -->
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:padding="24dp"
+                        android:gravity="center_horizontal">
+
+                        <ImageView android:id="@+id/ivQrCode"
+                            android:layout_width="200dp" android:layout_height="200dp"
+                            android:background="#FFFFFF" android:padding="12dp"
+                            android:layout_marginBottom="20dp"/>
+
+                        <!-- Ticket details grid -->
+                        <GridLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:columnCount="2" android:rowCount="3">
+
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                                android:layout_columnWeight="1" android:orientation="vertical"
+                                android:layout_margin="4dp">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                    android:text="SEATS" android:textSize="10sp"
+                                    android:textColor="#6B6B8A" android:letterSpacing="0.1"/>
+                                <TextView android:id="@+id/tvSeats"
+                                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                    android:textSize="14sp" android:textColor="#06D6A0"
+                                    android:textStyle="bold"/>
+                            </LinearLayout>
+
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                                android:layout_columnWeight="1" android:orientation="vertical"
+                                android:layout_margin="4dp">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                    android:text="FORMAT" android:textSize="10sp"
+                                    android:textColor="#6B6B8A" android:letterSpacing="0.1"/>
+                                <TextView android:id="@+id/tvFormat"
+                                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                    android:textSize="14sp" android:textColor="#FF3C5F"
+                                    android:textStyle="bold"/>
+                            </LinearLayout>
+
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                                android:layout_columnWeight="1" android:orientation="vertical"
+                                android:layout_margin="4dp">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                    android:text="SHOWTIME" android:textSize="10sp"
+                                    android:textColor="#6B6B8A" android:letterSpacing="0.1"/>
+                                <TextView android:id="@+id/tvShowtime"
+                                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                    android:textSize="13sp" android:textColor="#F0F0FF"/>
+                            </LinearLayout>
+
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                                android:layout_columnWeight="1" android:orientation="vertical"
+                                android:layout_margin="4dp">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                    android:text="VENUE" android:textSize="10sp"
+                                    android:textColor="#6B6B8A" android:letterSpacing="0.1"/>
+                                <TextView android:id="@+id/tvVenue"
+                                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                    android:textSize="13sp" android:textColor="#F0F0FF"/>
+                            </LinearLayout>
+
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                                android:layout_columnWeight="1" android:orientation="vertical"
+                                android:layout_margin="4dp">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                    android:text="PAID" android:textSize="10sp"
+                                    android:textColor="#6B6B8A" android:letterSpacing="0.1"/>
+                                <TextView android:id="@+id/tvFinalPrice"
+                                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                    android:textSize="16sp" android:textColor="#FFD166"
+                                    android:textStyle="bold"/>
+                            </LinearLayout>
+
+                        </GridLayout>
+
+                        <TextView android:id="@+id/tvSavings"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:textSize="13sp" android:textColor="#06D6A0"
+                            android:layout_marginTop="16dp" android:gravity="center"
+                            android:visibility="gone"/>
+
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <Button android:id="@+id/btnBackHome"
+                android:layout_width="match_parent" android:layout_height="52dp"
+                android:text="← Back to Home"
+                android:backgroundTint="#13131F"
+                android:textColor="#F0F0FF"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Ticket list view -->
+    <LinearLayout android:id="@+id/layoutTicketList"
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        android:orientation="vertical" android:visibility="gone">
+
+        <TextView android:id="@+id/tvUpcomingHeader"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Upcoming Tickets" android:textSize="18sp"
+            android:textColor="#F0F0FF" android:textStyle="bold"
+            android:padding="16dp" android:visibility="gone"/>
+
+        <TextView android:id="@+id/tvNoTickets"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="No tickets yet. Book your first ticket! 🎟"
+            android:textColor="#6B6B8A" android:padding="32dp"
+            android:layout_gravity="center" android:visibility="gone"/>
+
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvTickets"
+            android:layout_width="match_parent" android:layout_height="match_parent"
+            android:padding="8dp"/>
+    </LinearLayout>
+
+</FrameLayout>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- activity_wallet.xml                                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/bg_dark">
+
+    <!-- Wallet hero -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="24dp"
+        android:background="#1A1A0D" android:gravity="center_horizontal">
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="⬡ COIN BALANCE" android:textSize="11sp"
+            android:textColor="#FFD166" android:letterSpacing="0.2"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView android:id="@+id/tvCoins"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="56sp" android:textColor="#FFD166" android:textStyle="bold"/>
+
+        <TextView android:id="@+id/tvRupeeValue"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="14sp" android:textColor="#6B6B8A"
+            android:layout_marginBottom="12dp"/>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                <TextView android:id="@+id/tvTotalEarned"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="16sp" android:textColor="#06D6A0" android:textStyle="bold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Total Earned" android:textSize="11sp" android:textColor="#6B6B8A"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                <TextView android:id="@+id/tvTotalSpent"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="16sp" android:textColor="#FF3C5F" android:textStyle="bold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Total Spent" android:textSize="11sp" android:textColor="#6B6B8A"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                <TextView android:id="@+id/tvReferrals"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="16sp" android:textColor="#7C3AED" android:textStyle="bold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Referred" android:textSize="11sp" android:textColor="#6B6B8A"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView android:id="@+id/tvEarnRate"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="11sp" android:textColor="#6B6B8A"
+            android:layout_marginTop="12dp" android:gravity="center"/>
+    </LinearLayout>
+
+    <!-- Redeem section -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardBackgroundColor="#0F0F1A" app:cardCornerRadius="12dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:padding="16dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="💰 Redeem to UPI" android:textSize="14sp"
+                android:textColor="#F0F0FF" android:textStyle="bold"
+                android:layout_marginBottom="12dp"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:hint="Coins (min 500)"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_marginEnd="8dp">
+                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etRedeemCoins"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:inputType="number" android:textColor="#F0F0FF"/>
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:hint="UPI ID"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_marginEnd="8dp">
+                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etUpiId"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:textColor="#F0F0FF"/>
+                </com.google.android.material.textfield.TextInputLayout>
+                <Button android:id="@+id/btnRedeem"
+                    android:layout_width="wrap_content" android:layout_height="56dp"
+                    android:text="Redeem"
+                    android:backgroundTint="#FFD166"
+                    android:textColor="#000"/>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Transactions -->
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Transaction History" android:textSize="16sp"
+        android:textColor="#F0F0FF" android:textStyle="bold"
+        android:paddingHorizontal="16dp" android:paddingBottom="8dp"/>
+
+    <TextView android:id="@+id/tvNoTransactions"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="No transactions yet" android:textColor="#6B6B8A"
+        android:padding="16dp" android:visibility="gone"/>
+
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvTransactions"
+        android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+</LinearLayout>

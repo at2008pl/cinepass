@@ -1,0 +1,199 @@
+Great idea — this is a classic **multi-level referral (MLM-lite)** system. Here's a complete design recommendation:
+
+---
+
+## 🔗 Chain Referral System Design
+
+### 1. Database Schema
+
+```
+Users Table
+├── id
+├── referral_code        (unique, e.g. "RS3_A7K2")
+├── referred_by_user_id  (FK → users.id, nullable)
+└── coins / wallet
+
+Referral Chains Table
+├── id
+├── referrer_id          (who shared the code)
+├── referred_id          (who used the code)
+├── level                (1 = direct, 2 = indirect, 3 = ...)
+└── reward_given         (boolean)
+
+Referral Rewards Table
+├── level_1_reward       (e.g. 100 coins)
+├── level_2_reward       (e.g. 40 coins)
+├── level_3_reward       (e.g. 15 coins)
+```
+
+---
+
+### 2. Reward Logic (Backend — Node/Python/etc.)
+
+When User C registers with User B's code (and B was referred by A):
+
+```
+User C registers
+  → give B  100 coins  (level 1 - direct referral)
+  → give A   40 coins  (level 2 - indirect referral)
+  → walk up chain max 3 levels to prevent infinite loops
+```
+
+**Backend function:**
+```python
+def handle_referral(new_user_id, referral_code):
+    referrer = get_user_by_code(referral_code)
+    if not referrer:
+        return
+
+    chain = []
+    current = referrer
+    for level in range(1, 4):          # max 3 levels up
+        chain.append((current, level))
+        if not current.referred_by:
+            break
+        current = get_user(current.referred_by)
+
+    rewards = {1: 100, 2: 40, 3: 15}
+    for (user, level) in chain:
+        add_coins(user.id, rewards[level])
+        log_referral(referrer_id=user.id,
+                     referred_id=new_user_id,
+                     level=level)
+```
+
+---
+
+### 3. Referral Code Generation
+
+Generate on user creation — short, uppercase, unique:
+
+```kotlin
+// Android side (just display it)
+val referralCode = "RS3_${userId.takeLast(6).uppercase()}"
+
+// Backend side (recommended)
+fun generateCode(userId: String): String {
+    val chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+    val random = (1..6).map { chars.random() }.joinToString("")
+    return "RS3_$random"   // e.g. RS3_A7K2MX
+}
+```
+
+---
+
+### 4. Deep Link → Play Store → Auto-fill Code
+
+This is the most important UX piece. Use **Firebase Dynamic Links** or **Branch.io** (both free tiers available).
+
+#### Step A — Generate the shareable link (Backend)
+
+```
+https://rs3films.page.link/?
+  link=https://rs3films.com/register?ref=RS3_A7K2MX
+  &apn=com.cinepass          ← your Play Store package
+  &afl=https://play.google.com/store/apps/details?id=com.cinepass
+```
+
+When someone clicks this:
+- **App installed** → opens app directly at register screen with `ref=RS3_A7K2MX`
+- **App not installed** → redirects to Play Store, then on first launch delivers the referral code
+
+#### Step B — Android: Handle the deep link on launch
+
+```kotlin
+// MainActivity.kt
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+
+    FirebaseDynamicLinks.getInstance()
+        .getDynamicLink(intent)
+        .addOnSuccessListener { pendingData ->
+            val deepLink = pendingData?.link
+            val refCode = deepLink?.getQueryParameter("ref")
+            if (!refCode.isNullOrBlank()) {
+                // Save to SharedPrefs/DataStore
+                userPrefs.savePendingReferralCode(refCode)
+            }
+        }
+}
+```
+
+#### Step C — Auto-fill on Register screen
+
+```kotlin
+// RegisterScreen.kt — read saved referral code on launch
+LaunchedEffect(Unit) {
+    val pending = userPrefs.getPendingReferralCode()
+    if (!pending.isNullOrBlank()) {
+        referralCode = pending
+    }
+}
+
+// After successful registration, clear it
+userPrefs.clearPendingReferralCode()
+```
+
+---
+
+### 5. Share Button in the App (Kotlin)
+
+```kotlin
+@Composable
+fun ShareReferralButton(referralCode: String) {
+    val context = LocalContext.current
+    val link = "https://rs3films.page.link/?link=https://rs3films.com/register" +
+               "?ref=$referralCode&apn=com.cinepass"
+
+    Button(onClick = {
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT,
+                "🎬 Join RS³ FILMS with my code *$referralCode* " +
+                "and earn bonus coins!\n\n$link")
+        }
+        context.startActivity(Intent.createChooser(intent, "Share via"))
+    }) {
+        Icon(Icons.Outlined.Share, null)
+        Spacer(Modifier.width(6.dp))
+        Text("Share & Earn")
+    }
+}
+```
+
+---
+
+### 6. Implementation Checklist
+
+```
+Backend
+  ☐ Add referred_by_user_id column to users table
+  ☐ Add referral_chains table (referrer, referred, level, reward)
+  ☐ Walk up chain (max 3 levels) on each new registration
+  ☐ Credit coins per level via a transaction (atomic)
+  ☐ Return referral stats in /profile API response
+
+Android
+  ☐ Add Firebase Dynamic Links dependency
+  ☐ Handle deep link in MainActivity.onCreate
+  ☐ Save pending referral code to DataStore before login
+  ☐ Auto-fill referral field in RegisterScreen
+  ☐ Clear pending code after successful registration
+  ☐ Add Share button to ProfileScreen
+  ☐ Show referral earnings history in profile
+```
+
+---
+
+### 7. Recommended Tools
+
+| Need | Tool |
+|---|---|
+| Deep links | Firebase Dynamic Links (free) or Branch.io |
+| Coin ledger | Separate `transactions` table (never mutate, always append) |
+| Fraud prevention | One referral reward per device/IP, verified users only |
+| Analytics | Log every referral event to Firebase Analytics |
+
+---
+
+The most critical rule: **reward only after the referred user completes registration + email/OTP verification** — otherwise people create fake accounts to farm coins.

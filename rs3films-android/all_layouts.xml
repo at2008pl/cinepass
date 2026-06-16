@@ -1,0 +1,547 @@
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- colors.xml → res/values/colors.xml                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_dark">#080810</color>
+    <color name="surface">#0F0F1A</color>
+    <color name="card">#13131F</color>
+    <color name="border">#1E1E32</color>
+    <color name="accent">#FF3C5F</color>
+    <color name="gold">#FFD166</color>
+    <color name="cyan">#06D6A0</color>
+    <color name="purple">#7C3AED</color>
+    <color name="text_primary">#F0F0FF</color>
+    <color name="text_muted">#6B6B8A</color>
+    <color name="rs3_purple">#6B21A8</color>
+    <color name="rs3_green">#84CC16</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+</resources>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- strings.xml → res/values/strings.xml                      -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RS³ Films</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="phone">Phone Number</string>
+    <string name="full_name">Full Name</string>
+    <string name="referral_code">Referral Code (optional)</string>
+    <string name="verify_otp">Verify OTP</string>
+    <string name="book_ticket">Book Ticket</string>
+    <string name="my_wallet">My Wallet</string>
+    <string name="coins">Coins</string>
+</resources>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- themes.xml → res/values/themes.xml                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.RS3Films" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/rs3_purple</item>
+        <item name="colorPrimaryVariant">@color/accent</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/gold</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="android:colorBackground">@color/bg_dark</item>
+        <item name="android:windowBackground">@color/bg_dark</item>
+        <item name="android:statusBarColor">@color/bg_dark</item>
+        <item name="android:navigationBarColor">@color/bg_dark</item>
+    </style>
+</resources>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- activity_login.xml → res/layout/activity_login.xml        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:gravity="center_horizontal">
+
+        <!-- RS3 Logo area -->
+        <TextView android:id="@+id/tvMovieTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="42sp"
+            android:textColor="@color/accent"
+            android:fontFamily="serif"
+            android:layout_marginTop="60dp"/>
+
+        <TextView android:id="@+id/tvTagline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:textColor="@color/text_muted"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="48dp"/>
+
+        <!-- Email field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_marginBottom="16dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:textColor="@color/text_primary"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Password field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Password"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:passwordToggleEnabled="true"
+            android:layout_marginBottom="24dp"
+            xmlns:app="http://schemas.android.com/apk/res-auto">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:textColor="@color/text_primary"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ProgressBar android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_marginBottom="8dp"/>
+
+        <Button android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Login"
+            android:backgroundTint="@color/accent"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+        <TextView android:id="@+id/tvRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Don't have an account? Register here"
+            android:textColor="@color/cyan"
+            android:padding="16dp"
+            android:layout_marginTop="16dp"/>
+
+    </LinearLayout>
+</ScrollView>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- activity_register.xml                                      -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="32dp">
+
+        <TextView android:id="@+id/tvMovieTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="36sp"
+            android:textColor="@color/accent"
+            android:fontFamily="serif"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Create your fan account"
+            android:textColor="@color/text_muted"
+            android:textSize="14sp"
+            android:layout_marginBottom="32dp"/>
+
+        <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilName"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Full Name" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_marginBottom="16dp">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etName"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:inputType="textPersonName" android:textColor="@color/text_primary"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Email" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_marginBottom="16dp">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etEmail"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:inputType="textEmailAddress" android:textColor="@color/text_primary"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Phone (+91XXXXXXXXXX)" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_marginBottom="16dp">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etPhone"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:inputType="phone" android:textColor="@color/text_primary"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Password (min 8 chars)" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:passwordToggleEnabled="true"
+            android:layout_marginBottom="16dp">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etPassword"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:inputType="textPassword" android:textColor="@color/text_primary"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilReferralCode"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Referral Code (optional)" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_marginBottom="24dp"
+            app:boxStrokeColor="@color/cyan">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etReferralCode"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:inputType="textCapCharacters" android:textColor="@color/cyan"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ProgressBar android:id="@+id/progressBar"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:visibility="gone" android:layout_gravity="center"
+            android:layout_marginBottom="8dp"/>
+
+        <Button android:id="@+id/btnRegister"
+            android:layout_width="match_parent" android:layout_height="56dp"
+            android:text="Create Fan Account 🎬"
+            android:backgroundTint="@color/accent"
+            android:textSize="16sp" android:textStyle="bold"/>
+
+        <TextView android:id="@+id/tvLogin"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Already have an account? Login"
+            android:textColor="@color/cyan"
+            android:padding="16dp" android:layout_gravity="center"/>
+
+    </LinearLayout>
+</ScrollView>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- activity_home.xml                                          -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- Welcome -->
+        <TextView android:id="@+id/tvWelcome"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="22sp" android:textColor="@color/text_primary"
+            android:textStyle="bold" android:layout_marginBottom="4dp"/>
+
+        <!-- Coins bar -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardBackgroundColor="#1A1A0D"
+            app:cardCornerRadius="16dp"
+            xmlns:app="http://schemas.android.com/apk/res-auto">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="20dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="⬡ MY COINS" android:textSize="11sp"
+                    android:textColor="@color/gold" android:letterSpacing="0.2"/>
+                <TextView android:id="@+id/tvCoins"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="40sp" android:textColor="@color/gold"
+                    android:textStyle="bold"/>
+                <TextView android:id="@+id/tvCoinValue"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="13sp" android:textColor="@color/text_muted"/>
+                <TextView android:id="@+id/tvTotalReferrals"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="13sp" android:textColor="@color/cyan"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Movie card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardBackgroundColor="#13131F"
+            app:cardCornerRadius="16dp"
+            xmlns:app="http://schemas.android.com/apk/res-auto">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="20dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="🎬 NOW PROMOTING" android:textSize="11sp"
+                    android:textColor="@color/accent" android:letterSpacing="0.2"
+                    android:layout_marginBottom="8dp"/>
+                <TextView android:id="@+id/tvMovieTitle"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="32sp" android:textColor="@color/text_primary"
+                    android:textStyle="bold" android:fontFamily="serif"/>
+                <TextView android:id="@+id/tvMovieTagline"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="13sp" android:textColor="@color/text_muted"
+                    android:fontFamily="serif" android:layout_marginBottom="8dp"/>
+                <TextView android:id="@+id/tvMovieInfo"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="13sp" android:textColor="@color/text_muted"/>
+                <TextView android:id="@+id/tvRelease"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="13sp" android:textColor="@color/gold"
+                    android:layout_marginTop="4dp" android:layout_marginBottom="16dp"/>
+                <Button android:id="@+id/btnViewEvent"
+                    android:layout_width="match_parent" android:layout_height="48dp"
+                    android:text="View Event &amp; Book Tickets →"
+                    android:backgroundTint="@color/accent"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Referral card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardBackgroundColor="#001A0D"
+            app:cardCornerRadius="16dp"
+            xmlns:app="http://schemas.android.com/apk/res-auto">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="20dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="🔗 REFER &amp; EARN" android:textSize="11sp"
+                    android:textColor="@color/cyan" android:letterSpacing="0.2"
+                    android:layout_marginBottom="8dp"/>
+                <TextView android:id="@+id/tvShareHint"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="13sp" android:textColor="@color/text_muted"
+                    android:layout_marginBottom="12dp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Your Code:" android:textSize="12sp"
+                    android:textColor="@color/text_muted"/>
+                <TextView android:id="@+id/tvReferralCode"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="24sp" android:textColor="@color/cyan"
+                    android:textStyle="bold" android:fontFamily="monospace"
+                    android:layout_marginBottom="4dp"/>
+                <TextView android:id="@+id/tvReferralLink"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="11sp" android:textColor="@color/text_muted"
+                    android:layout_marginBottom="12dp"/>
+                <Button android:id="@+id/btnCopyReferral"
+                    android:layout_width="match_parent" android:layout_height="44dp"
+                    android:text="Copy Referral Code 📋"
+                    android:backgroundTint="@color/cyan"
+                    android:textColor="@color/black"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Bottom buttons -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:layout_marginBottom="12dp">
+            <Button android:id="@+id/btnWallet"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:text="👛 Wallet"
+                android:backgroundTint="#1A1A2E" android:layout_marginEnd="8dp"/>
+            <Button android:id="@+id/btnMyTickets"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:text="🎟 My Tickets"
+                android:backgroundTint="#1A1A2E"/>
+        </LinearLayout>
+
+        <Button android:id="@+id/btnLogout"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Logout"
+            android:backgroundTint="#1A0A0A"
+            android:textColor="@color/text_muted"/>
+
+    </LinearLayout>
+</ScrollView>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- item_showtime.xml → res/layout/item_showtime.xml          -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="120dp"
+    android:layout_height="wrap_content"
+    android:layout_margin="6dp"
+    app:cardBackgroundColor="#13131F"
+    app:cardCornerRadius="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:gravity="center">
+
+        <TextView android:id="@+id/tvTime"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="16sp" android:textColor="#F0F0FF"
+            android:textStyle="bold"/>
+
+        <TextView android:id="@+id/tvFormat"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="11sp" android:textColor="#FF3C5F"/>
+
+        <TextView android:id="@+id/tvPrice"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="14sp" android:textColor="#FFD166"
+            android:textStyle="bold"/>
+
+        <TextView android:id="@+id/tvSeats"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="10sp" android:textColor="#6B6B8A"/>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- item_seat.xml → res/layout/item_seat.xml                  -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical">
+
+    <TextView android:id="@+id/tvSeatLabel"
+        android:layout_width="16dp" android:layout_height="wrap_content"
+        android:textSize="10sp" android:textColor="#6B6B8A"
+        android:visibility="gone"/>
+
+    <Button android:id="@+id/btnSeat"
+        android:layout_width="32dp" android:layout_height="28dp"
+        android:textSize="8sp" android:padding="0dp"
+        android:layout_margin="2dp"
+        android:textColor="#F0F0FF"/>
+
+</LinearLayout>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- item_transaction.xml                                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:gravity="center_vertical">
+
+    <TextView android:id="@+id/tvIcon"
+        android:layout_width="36dp" android:layout_height="36dp"
+        android:textSize="18sp" android:gravity="center"/>
+
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="1" android:orientation="vertical"
+        android:layout_marginStart="12dp">
+        <TextView android:id="@+id/tvDescription"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="14sp" android:textColor="#F0F0FF" android:textStyle="bold"/>
+        <TextView android:id="@+id/tvDate"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="11sp" android:textColor="#6B6B8A"/>
+    </LinearLayout>
+
+    <TextView android:id="@+id/tvAmount"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textSize="14sp" android:textStyle="bold" android:fontFamily="monospace"/>
+
+</LinearLayout>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- item_ticket.xml                                            -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardBackgroundColor="#13131F"
+    app:cardCornerRadius="16dp">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="16dp">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical">
+                <TextView android:id="@+id/tvMovieName"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="16sp" android:textColor="#F0F0FF" android:textStyle="bold"/>
+                <TextView android:id="@+id/tvSeats"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="12sp" android:textColor="#6B6B8A"/>
+            </LinearLayout>
+            <TextView android:id="@+id/tvPrice"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="16sp" android:textColor="#FFD166" android:textStyle="bold"/>
+        </LinearLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp"
+            android:background="#1E1E32" android:layout_marginVertical="12dp"/>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView android:id="@+id/tvShowtime"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:textSize="12sp" android:textColor="#6B6B8A"/>
+            <TextView android:id="@+id/tvFormat"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="12sp" android:textColor="#FF3C5F"/>
+        </LinearLayout>
+
+        <TextView android:id="@+id/tvVenue"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="12sp" android:textColor="#6B6B8A"/>
+
+        <TextView android:id="@+id/tvStatus"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="11sp" android:textColor="#06D6A0"
+            android:layout_marginTop="4dp"/>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
