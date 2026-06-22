@@ -1,4 +1,8 @@
 @file:Suppress("DEPRECATION")
+@file:OptIn(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCacheApi::class)
+
+import org.jetbrains.kotlin.gradle.plugin.mpp.DisableCacheInKotlinVersion
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     id("com.android.library")
@@ -15,13 +19,16 @@ kotlin {
     }
     
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+            disableNativeCache(
+                version = DisableCacheInKotlinVersion.`2_3_20`,
+                reason = "Work around navigation-runtime klib cache build failure on Kotlin 2.3.20",
+            )
         }
     }
     
@@ -37,11 +44,12 @@ kotlin {
             api(compose.components.uiToolingPreview)
             
             // Lifecycle Viewmodel & Runtime
-            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
-            implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.8.0")
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0-beta01")
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.11.0-beta01")
             
             // Navigation
-            implementation("org.jetbrains.androidx.navigation:navigation-compose:2.8.0-alpha08")
+            implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.2")
+            implementation("org.jetbrains.androidx.savedstate:savedstate:1.4.0")
             
             // Ktor HTTP Client
             implementation(libs.ktor.client.core)

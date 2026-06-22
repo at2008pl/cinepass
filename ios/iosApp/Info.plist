@@ -27,6 +27,25 @@
 	</dict>
 	<key>UILaunchScreen</key>
 	<dict/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>117.198.99.60</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Cinepass needs camera access to capture your registration selfie.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Cinepass needs photo library access to upload your registration selfie.</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>

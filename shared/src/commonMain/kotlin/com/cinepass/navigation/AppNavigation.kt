@@ -211,7 +211,10 @@ fun AppNavigation(
                 route = Routes.OFFER_DETAIL,
                 arguments = listOf(navArgument("offerId") { type = NavType.IntType })
             ) { backStackEntry ->
-                val offerId = backStackEntry.arguments?.getInt("offerId") ?: return@composable
+                val offerId = backStackEntry.destination.route
+                    ?.removePrefix("offer_detail/")
+                    ?.toIntOrNull()
+                    ?: return@composable
                 OfferDetailScreen(
                     offerId = offerId,
                     onBack = { navController.popBackStack() }

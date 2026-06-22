@@ -10,24 +10,6 @@ import com.cinepass.data.api.models.*
 import com.cinepass.data.models.*
 import retrofit2.Response
 
-expect suspend fun registerMultipart(
-    client: HttpClient,
-    name: Any,
-    email: Any,
-    phone: Any,
-    gender: Any?,
-    dob: Any?,
-    addressLine: Any?,
-    city: Any?,
-    state: Any?,
-    pincode: Any?,
-    password: Any,
-    confirmPassword: Any,
-    referralCode: Any?,
-    otp: Any,
-    selfie: Any
-): Response<ApiResponse<AuthData>>
-
 class ApiService(private val client: HttpClient) {
 
     private suspend inline fun <reified T> safeGet(path: String, crossinline block: HttpRequestBuilder.() -> Unit = {}): Response<T> {
@@ -97,24 +79,8 @@ class ApiService(private val client: HttpClient) {
     suspend fun login(request: LoginRequest): Response<ApiResponse<AuthData>> =
         safePost("auth/login", request)
 
-    suspend fun register(
-        name: Any,
-        email: Any,
-        phone: Any,
-        gender: Any?,
-        dob: Any?,
-        addressLine: Any?,
-        city: Any?,
-        state: Any?,
-        pincode: Any?,
-        password: Any,
-        confirmPassword: Any,
-        referralCode: Any?,
-        otp: Any,
-        selfie: Any,
-    ): Response<ApiResponse<AuthData>> = registerMultipart(
-        client, name, email, phone, gender, dob, addressLine, city, state, pincode, password, confirmPassword, referralCode, otp, selfie
-    )
+    suspend fun register(form: RegisterFormData): Response<ApiResponse<AuthData>> =
+        registerMultipart(client, form)
 
     suspend fun sendOtp(request: OtpSendRequest): Response<ApiResponse<Any>> =
         safePost("auth/app/otp/send", request)

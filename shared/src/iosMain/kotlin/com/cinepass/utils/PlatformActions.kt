@@ -1,7 +1,20 @@
 package com.cinepass.utils
 
-actual object PlatformActions {
-    actual fun copyToClipboard(label: String, text: String) = Unit
+import platform.UIKit.UIActivityViewController
+import platform.UIKit.UIApplication
+import platform.UIKit.UIPasteboard
 
-    actual fun shareText(text: String, chooserTitle: String) = Unit
+actual object PlatformActions {
+    actual fun copyToClipboard(label: String, text: String) {
+        UIPasteboard.generalPasteboard.string = text
+    }
+
+    actual fun shareText(text: String, chooserTitle: String) {
+        val controller = UIApplication.sharedApplication.keyWindow?.rootViewController ?: return
+        val activity = UIActivityViewController(
+            activityItems = listOf(text),
+            applicationActivities = null,
+        )
+        controller.presentViewController(activity, animated = true, completion = null)
+    }
 }
