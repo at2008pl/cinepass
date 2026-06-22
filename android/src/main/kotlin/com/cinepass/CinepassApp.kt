@@ -3,7 +3,7 @@ package com.cinepass
 import android.app.Application
 import com.cinepass.di.initKoin
 import com.cinepass.ui.auth.RegisterScreenProvider
-import com.cinepass.ui.auth.AndroidRegisterScreen
+import com.cinepass.ui.auth.android.AndroidRegisterScreen
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 

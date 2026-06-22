@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.cinepass.android-mergeDebugResources-71:/values-v18/values-v18.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\Dell\\.gradle\\caches\\9.2.1\\transforms\\40f5f4efbe8f60cc19a63f73a6f26cd4\\workspace\\transformed\\appcompat-1.6.1\\res\\values-v18\\values-v18.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "48",
+                        "endOffsets": "99"
+                    }
+                }
+            ]
+        }
+    ]
+}

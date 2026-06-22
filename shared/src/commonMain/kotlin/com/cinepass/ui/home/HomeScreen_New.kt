@@ -21,7 +21,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -73,8 +72,7 @@ fun HomeScreen_New(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
-    val userPrefs = remember { UserPrefs(context) }
+    val userPrefs = remember { UserPrefs() }
     val userName = userPrefs.userName ?: "Fan"
 
     // YouTube dialog state
@@ -492,7 +490,6 @@ private fun ContentCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
 @Composable
 private fun FeedCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
     val ytId = post.link?.let { extractYouTubeId(it) }
-    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxWidth()

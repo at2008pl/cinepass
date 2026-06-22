@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -49,8 +48,7 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
-    val userPrefs = remember { UserPrefs(context) }
+    val userPrefs = remember { UserPrefs() }
     var identifier by remember { mutableStateOf(userPrefs.rememberedIdentifier ?: "") }
     var password by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }

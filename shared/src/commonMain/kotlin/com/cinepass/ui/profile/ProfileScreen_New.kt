@@ -19,15 +19,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cinepass.data.api.models.Rs3Profile
 import com.cinepass.data.api.models.Rs3Redemption
+import com.cinepass.utils.PlatformActions
 
 private val PGold   = Color(0xFFC9973A)
 private val PGold3  = Color(0xFFF5D78E)
@@ -336,30 +335,6 @@ fun ProfileScreen_New(
 
 // ── CMS Helper Composables ──────────────────────────────────────────────────
 
-/** Renders an HTML string as plain-ish text via Android's Html.fromHtml */
-@Composable
-private fun CmsHtmlText(html: String, modifier: Modifier = Modifier) {
-    val spanned = remember(html) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            android.text.Html.fromHtml(html, android.text.Html.FROM_HTML_MODE_COMPACT)
-        } else {
-            @Suppress("DEPRECATION")
-            android.text.Html.fromHtml(html)
-        }
-    }
-    androidx.compose.ui.viewinterop.AndroidView(
-        factory = { ctx ->
-            android.widget.TextView(ctx).apply {
-                setTextColor(android.graphics.Color.parseColor("#FF9A8A6A"))
-                textSize = 12f
-                setLineSpacing(4f, 1f)
-            }
-        },
-        update = { view -> view.text = spanned },
-        modifier = modifier.fillMaxWidth()
-    )
-}
-
 /** Full-screen scrollable dialog for CMS rich-text sections */
 @Composable
 private fun CmsDialog(title: String, htmlContent: String, onDismiss: () -> Unit) {
@@ -380,7 +355,6 @@ private fun CmsDialog(title: String, htmlContent: String, onDismiss: () -> Unit)
 
 @Composable
 private fun ProfileHeader(profile: Rs3Profile?, onLogout: () -> Unit) {
-    val context = LocalContext.current
     Box(
         modifier = Modifier.fillMaxWidth()
             .background(Brush.linearGradient(listOf(Color(0xFF0E0A06), Color(0xFF1E1408)),
@@ -477,13 +451,9 @@ private fun ProfileHeader(profile: Rs3Profile?, onLogout: () -> Unit) {
                         .background(PGold.copy(alpha = 0.2f))
                         .clickable {
                             val code = profile?.referralCode ?: return@clickable
-                            val intent = android.content.Intent().apply {
-                                action = android.content.Intent.ACTION_SEND
-                                putExtra(android.content.Intent.EXTRA_TEXT,
-                                    "🎬 Join RS³ Films – India's most exclusive film fan club!\n\nDownload the app using my referral link and get exclusive access:\n\nhttp://192.168.29.211:4001/dl?ref=$code")
-                                type = "text/plain"
-                            }
-                            context.startActivity(android.content.Intent.createChooser(intent, "Share"))
+                            PlatformActions.shareText(
+                                "🎬 Join RS³ Films – India's most exclusive film fan club!\n\nDownload the app using my referral link and get exclusive access:\n\nhttp://192.168.29.211:4001/dl?ref=$code"
+                            )
                         }
                         .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {

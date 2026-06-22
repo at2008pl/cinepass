@@ -14,12 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cinepass.utils.PlatformActions
 
 private val RGold     = Color(0xFFC9973A)
 private val RGold3    = Color(0xFFF5D78E)
@@ -36,7 +36,6 @@ fun ReferralScreen_New(
     onBack: () -> Unit = {},
     viewModel: ReferralViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     var copied by remember { mutableStateOf(false) }
 
@@ -100,8 +99,7 @@ fun ReferralScreen_New(
                                 // Copy button
                                 Button(
                                     onClick = {
-                                        val cm = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                                        cm.setPrimaryClip(android.content.ClipData.newPlainText("code", uiState.referralCode))
+                                        PlatformActions.copyToClipboard("code", uiState.referralCode)
                                         copied = true
                                     },
                                     modifier = Modifier.weight(1f).height(44.dp),
@@ -117,13 +115,9 @@ fun ReferralScreen_New(
                                 Button(
                                     onClick = {
                                         val code = uiState.referralCode.ifEmpty { return@Button }
-                                        val intent = android.content.Intent().apply {
-                                            action = android.content.Intent.ACTION_SEND
-                                            putExtra(android.content.Intent.EXTRA_TEXT,
-                                                "🎬 Join RS³ Films – India's most exclusive film fan club!\n\nDownload the app using my referral link and get exclusive access:\n\nhttp://117.198.99.60:8085/dl?ref=$code")
-                                            type = "text/plain"
-                                        }
-                                        context.startActivity(android.content.Intent.createChooser(intent, "Share"))
+                                        PlatformActions.shareText(
+                                            "🎬 Join RS³ Films – India's most exclusive film fan club!\n\nDownload the app using my referral link and get exclusive access:\n\nhttp://117.198.99.60:8085/dl?ref=$code"
+                                        )
                                     },
                                     modifier = Modifier.weight(1f).height(44.dp),
                                     shape = RoundedCornerShape(10.dp),

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<incidents format="6" by="lint 9.0.1" type="conditional_incidents">
+
+    <incident
+        id="NotificationPermission"
+        severity="error"
+        message="When targeting Android 13 or higher, posting a permission requires holding the `POST_NOTIFICATIONS` permission">
+        <fix-data missing="android.permission.POST_NOTIFICATIONS"/>
+        <location
+            file="${:android*debug*MAIN*sourceProvider*0*javaDir*2}/com/cinepass/services/FirebaseMessagingService.kt"
+            line="121"
+            column="9"
+            startOffset="4634"
+            endLine="121"
+            endColumn="68"
+            endOffset="4693"/>
+    </incident>
+
+    <incident
+        id="UnusedAttribute"
+        severity="warning"
+        message="">
+        <fix-data minSdk="26-∞" requiresApi="33-∞"/>
+        <location
+            file="${:android*debug*MAIN*sourceProvider*0*manifest*0}"
+            line="12"
+            column="9"
+            startOffset="596"
+            endLine="12"
+            endColumn="51"
+            endOffset="638"/>
+        <map>
+            <entry
+                name="message"
+                string="Attribute `enableOnBackInvokedCallback` is only used in API level 33 and higher (current min is %1$s)"/>
+            <api-levels id="minSdk"
+                value="26-∞"/>
+            <api-levels id="requiresApi"
+                value="33-∞"/>
+        </map>
+    </incident>
+
+</incidents>

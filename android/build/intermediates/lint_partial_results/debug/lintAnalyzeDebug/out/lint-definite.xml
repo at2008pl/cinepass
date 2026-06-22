@@ -1,0 +1,658 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<incidents format="6" by="lint 9.0.1" type="incidents">
+
+    <incident
+        id="RedundantLabel"
+        severity="warning"
+        message="Redundant label can be removed">
+        <fix-attribute
+            description="Delete label"
+            namespace="http://schemas.android.com/apk/res/android"
+            attribute="label"/>
+        <location
+            file="${:android*debug*MAIN*sourceProvider*0*manifest*0}"
+            line="25"
+            column="13"
+            startOffset="1176"
+            endLine="25"
+            endColumn="45"
+            endOffset="1208"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.appcompat:appcompat than 1.6.1 is available: 1.7.1">
+        <fix-replace
+            description="Change to 1.7.1"
+            family="Update versions"
+            oldString="1.6.1"
+            replacement="1.7.1"
+            priority="0"/>
+        <location
+            file="${:android*projectDir}/build.gradle.kts"
+            line="48"
+            column="20"
+            startOffset="1168"
+            endLine="48"
+            endColumn="56"
+            endOffset="1204"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of com.google.android.material:material than 1.11.0 is available: 1.14.0">
+        <fix-replace
+            description="Change to 1.14.0"
+            family="Update versions"
+            oldString="1.11.0"
+            replacement="1.14.0"
+            priority="0"/>
+        <location
+            file="${:android*projectDir}/build.gradle.kts"
+            line="49"
+            column="20"
+            startOffset="1225"
+            endLine="49"
+            endColumn="65"
+            endOffset="1270"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.media3:media3-exoplayer than 1.3.1 is available: 1.10.1">
+        <fix-replace
+            description="Change to 1.10.1"
+            family="Update versions"
+            oldString="1.3.1"
+            replacement="1.10.1"
+            priority="0"/>
+        <location
+            file="${:android*projectDir}/build.gradle.kts"
+            line="58"
+            column="20"
+            startOffset="1499"
+            endLine="58"
+            endColumn="60"
+            endOffset="1539"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.media3:media3-ui than 1.3.1 is available: 1.10.1">
+        <fix-replace
+            description="Change to 1.10.1"
+            family="Update versions"
+            oldString="1.3.1"
+            replacement="1.10.1"
+            priority="0"/>
+        <location
+            file="${:android*projectDir}/build.gradle.kts"
+            line="59"
+            column="20"
+            startOffset="1560"
+            endLine="59"
+            endColumn="53"
+            endOffset="1593"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of com.google.firebase:firebase-bom than 32.7.0 is available: 34.15.0">
+        <fix-replace
+            description="Change to 34.15.0"
+            family="Update versions"
+            oldString="32.7.0"
+            replacement="34.15.0"
+            priority="0"/>
+        <location
+            file="${:android*projectDir}/build.gradle.kts"
+            line="66"
+            column="29"
+            startOffset="1825"
+            endLine="66"
+            endColumn="70"
+            endOffset="1866"/>
+    </incident>
+
+    <incident
+        id="NewerVersionAvailable"
+        severity="warning"
+        message="A newer version of com.pierfrancescosoffritti.androidyoutubeplayer:core than 12.1.0 is available: 13.0.0">
+        <fix-replace
+            description="Change to 13.0.0"
+            family="Update versions"
+            oldString="12.1.0"
+            replacement="13.0.0"
+            priority="0"/>
+        <location
+            file="${:android*projectDir}/build.gradle.kts"
+            line="60"
+            column="20"
+            startOffset="1614"
+            endLine="60"
+            endColumn="81"
+            endOffset="1675"/>
+    </incident>
+
+    <incident
+        id="ModifierParameter"
+        severity="warning"
+        message="Modifier parameter should be the first optional parameter">
+        <location
+            file="${:android*debug*MAIN*sourceProvider*0*javaDir*2}/com/cinepass/ui/auth/RegisterScreen.kt"
+            line="1096"
+            column="5"
+            startOffset="46170"
+            endLine="1096"
+            endColumn="13"
+            endOffset="46178"/>
+    </incident>
+
+    <incident
+        id="ModifierParameter"
+        severity="warning"
+        message="Modifier parameter should be the first optional parameter">
+        <location
+            file="${:android*debug*MAIN*sourceProvider*0*javaDir*2}/com/cinepass/ui/auth/RegisterScreen.kt"
+            line="1200"
+            column="5"
+            startOffset="49996"
+            endLine="1200"
+            endColumn="13"
+            endOffset="50004"/>
+    </incident>
+
+    <incident
+        id="ObsoleteSdkInt"
+        severity="warning"
+        message="Unnecessary; `SDK_INT` is always >= 26">
+        <fix-data conditional="true"/>
+        <location
+            file="${:android*debug*MAIN*sourceProvider*0*javaDir*2}/com/cinepass/services/FirebaseMessagingService.kt"
+            line="72"
+            column="13"
+            startOffset="2588"
+            endLine="72"
+            endColumn="59"
+            endOffset="2634"/>
+    </incident>
+
+    <incident
+        id="ObsoleteSdkInt"
+        severity="warning"
+        message="This folder configuration (`v26`) is unnecessary; `minSdkVersion` is 26. Merge all the resources in this folder into `mipmap-anydpi`.">
+        <fix-data file="${:android*debug*MAIN*sourceProvider*0*resDir*0}/mipmap-anydpi-v26" folderName="mipmap-anydpi" requiresApi="26"/>
+        <location
+            file="${:android*debug*MAIN*sourceProvider*0*resDir*0}/mipmap-anydpi-v26"/>
+    </incident>
+
+    <incident
+        id="MonochromeLauncherIcon"
+        severity="warning"
+        message="The application adaptive icon is missing a monochrome tag">
+        <location
+            file="${:android*debug*MAIN*sourceProvider*0*resDir*0}/mipmap-anydpi-v26/ic_launcher.xml"
+            line="2"
+            column="1"
+            startOffset="40"
+            endLine="5"
+            endColumn="17"
+            endOffset="269"/>
+    </incident>
+
+    <incident
+        id="MonochromeLauncherIcon"
+        severity="warning"
+        message="The application adaptive roundIcon is missing a monochrome tag">
+        <location
+            file="${:android*debug*MAIN*sourceProvider*0*resDir*0}/mipmap-anydpi-v26/ic_launcher_round.xml"
+            line="2"
+            column="1"
+            startOffset="40"
+            endLine="5"
+            endColumn="17"
+            endOffset="269"/>
+    </incident>
+
+    <incident
+        id="IconLocation"
+        severity="warning"
+        message="Found bitmap drawable `res/drawable/reg_log_page.png` in densityless folder">
+        <location
+            file="${:android*debug*MAIN*sourceProvider*0*resDir*0}/drawable/reg_log_page.png"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for appcompat"
+            robot="true">
+            <fix-replace
+                description="Replace with appcompatVersion = &quot;1.6.1&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="appcompatVersion = &quot;1.6.1&quot;&#xA;"
+                priority="0">
+                <range
+                    file="../gradle/libs.versions.toml"
+                    startOffset="25"
+                    endOffset="25"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with appcompat = { module = &quot;androidx.appcompat:appcompat&quot;, version.ref = &quot;appcompatVersion&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="appcompat = { module = &quot;androidx.appcompat:appcompat&quot;, version.ref = &quot;appcompatVersion&quot; }&#xA;"
+                priority="0">
+                <range
+                    file="../gradle/libs.versions.toml"
+                    startOffset="377"
+                    endOffset="377"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.appcompat"
+                robot="true"
+                replacement="libs.appcompat"
+                priority="0">
+                <range
+                    file="${:android*projectDir}/build.gradle.kts"
+                    startOffset="1168"
+                    endOffset="1204"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:android*projectDir}/build.gradle.kts"
+            line="48"
+            column="20"
+            startOffset="1168"
+            endLine="48"
+            endColumn="56"
+            endOffset="1204"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for google-material"
+            robot="true">
+            <fix-replace
+                description="Replace with materialVersion = &quot;1.11.0&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="materialVersion = &quot;1.11.0&quot;&#xA;"
+                priority="0">
+                <range
+                    file="../gradle/libs.versions.toml"
+                    startOffset="272"
+                    endOffset="272"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with google-material = { module = &quot;com.google.android.material:material&quot;, version.ref = &quot;materialVersion&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="google-material = { module = &quot;com.google.android.material:material&quot;, version.ref = &quot;materialVersion&quot; }&#xA;"
+                priority="0">
+                <range
+                    file="../gradle/libs.versions.toml"
+                    startOffset="377"
+                    endOffset="377"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.google.material"
+                robot="true"
+                replacement="libs.google.material"
+                priority="0">
+                <range
+                    file="${:android*projectDir}/build.gradle.kts"
+                    startOffset="1225"
+                    endOffset="1270"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:android*projectDir}/build.gradle.kts"
+            line="49"
+            column="20"
+            startOffset="1225"
+            endLine="49"
+            endColumn="65"
+            endOffset="1270"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for media3-exoplayer"
+            robot="true">
+            <fix-replace
+                description="Replace with media3ExoplayerVersion = &quot;1.3.1&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="media3ExoplayerVersion = &quot;1.3.1&quot;&#xA;"
+                priority="0">
+                <range
+                    file="../gradle/libs.versions.toml"
+                    startOffset="272"
+                    endOffset="272"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with media3-exoplayer = { module = &quot;androidx.media3:media3-exoplayer&quot;, version.ref = &quot;media3ExoplayerVersion&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="media3-exoplayer = { module = &quot;androidx.media3:media3-exoplayer&quot;, version.ref = &quot;media3ExoplayerVersion&quot; }&#xA;"
+                priority="0">
+                <range
+                    file="../gradle/libs.versions.toml"
+                    startOffset="2431"
+                    endOffset="2431"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.media3.exoplayer"
+                robot="true"
+                replacement="libs.media3.exoplayer"
+                priority="0">
+                <range
+                    file="${:android*projectDir}/build.gradle.kts"
+                    startOffset="1499"
+                    endOffset="1539"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:android*projectDir}/build.gradle.kts"
+            line="58"
+            column="20"
+            startOffset="1499"
+            endLine="58"
+            endColumn="60"
+            endOffset="1539"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for media3-ui"
+            robot="true">
+            <fix-replace
+                description="Replace with media3UiVersion = &quot;1.3.1&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="media3UiVersion = &quot;1.3.1&quot;&#xA;"
+                priority="0">
+                <range
+                    file="../gradle/libs.versions.toml"
+                    startOffset="272"
+                    endOffset="272"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with media3-ui = { module = &quot;androidx.media3:media3-ui&quot;, version.ref = &quot;media3UiVersion&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="media3-ui = { module = &quot;androidx.media3:media3-ui&quot;, version.ref = &quot;media3UiVersion&quot; }&#xA;"
+                priority="0">
+                <range
+                    file="../gradle/libs.versions.toml"
+                    startOffset="2431"
+                    endOffset="2431"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.media3.ui"
+                robot="true"
+                replacement="libs.media3.ui"
+                priority="0">
+                <range
+                    file="${:android*projectDir}/build.gradle.kts"
+                    startOffset="1560"
+                    endOffset="1593"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:android*projectDir}/build.gradle.kts"
+            line="59"
+            column="20"
+            startOffset="1560"
+            endLine="59"
+            endColumn="53"
+            endOffset="1593"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for androidyoutubeplayer-core"
+            robot="true">
+            <fix-replace
+                description="Replace with coreVersion = &quot;12.1.0&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="coreVersion = &quot;12.1.0&quot;&#xA;"
+                priority="0">
+                <range
+                    file="../gradle/libs.versions.toml"
+                    startOffset="44"
+                    endOffset="44"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with androidyoutubeplayer-core = { module = &quot;com.pierfrancescosoffritti.androidyoutubeplayer:core&quot;, version.ref = &quot;coreVersion&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="androidyoutubeplayer-core = { module = &quot;com.pierfrancescosoffritti.androidyoutubeplayer:core&quot;, version.ref = &quot;coreVersion&quot; }&#xA;"
+                priority="0">
+                <range
+                    file="../gradle/libs.versions.toml"
+                    startOffset="377"
+                    endOffset="377"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.androidyoutubeplayer.core"
+                robot="true"
+                replacement="libs.androidyoutubeplayer.core"
+                priority="0">
+                <range
+                    file="${:android*projectDir}/build.gradle.kts"
+                    startOffset="1614"
+                    endOffset="1675"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:android*projectDir}/build.gradle.kts"
+            line="60"
+            column="20"
+            startOffset="1614"
+            endLine="60"
+            endColumn="81"
+            endOffset="1675"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for android-installreferrer"
+            robot="true">
+            <fix-replace
+                description="Replace with installreferrerVersion = &quot;2.2&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="installreferrerVersion = &quot;2.2&quot;&#xA;"
+                priority="0">
+                <range
+                    file="../gradle/libs.versions.toml"
+                    startOffset="44"
+                    endOffset="44"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with android-installreferrer = { module = &quot;com.android.installreferrer:installreferrer&quot;, version.ref = &quot;installreferrerVersion&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="android-installreferrer = { module = &quot;com.android.installreferrer:installreferrer&quot;, version.ref = &quot;installreferrerVersion&quot; }&#xA;"
+                priority="0">
+                <range
+                    file="../gradle/libs.versions.toml"
+                    startOffset="285"
+                    endOffset="285"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.android.installreferrer"
+                robot="true"
+                replacement="libs.android.installreferrer"
+                priority="0">
+                <range
+                    file="${:android*projectDir}/build.gradle.kts"
+                    startOffset="1725"
+                    endOffset="1774"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:android*projectDir}/build.gradle.kts"
+            line="63"
+            column="20"
+            startOffset="1725"
+            endLine="63"
+            endColumn="69"
+            endOffset="1774"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for google-firebase-bom"
+            robot="true">
+            <fix-replace
+                description="Replace with firebaseBomVersion = &quot;32.7.0&quot;..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="firebaseBomVersion = &quot;32.7.0&quot;&#xA;"
+                priority="0">
+                <range
+                    file="../gradle/libs.versions.toml"
+                    startOffset="44"
+                    endOffset="44"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with google-firebase-bom = { module = &quot;com.google.firebase:firebase-bom&quot;, version.ref = &quot;firebaseBomVersion&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="google-firebase-bom = { module = &quot;com.google.firebase:firebase-bom&quot;, version.ref = &quot;firebaseBomVersion&quot; }&#xA;"
+                priority="0">
+                <range
+                    file="../gradle/libs.versions.toml"
+                    startOffset="377"
+                    endOffset="377"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.google.firebase.bom"
+                robot="true"
+                replacement="libs.google.firebase.bom"
+                priority="0">
+                <range
+                    file="${:android*projectDir}/build.gradle.kts"
+                    startOffset="1825"
+                    endOffset="1866"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:android*projectDir}/build.gradle.kts"
+            line="66"
+            column="29"
+            startOffset="1825"
+            endLine="66"
+            endColumn="70"
+            endOffset="1866"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for google-firebase-messaging-ktx"
+            robot="true">
+            <fix-replace
+                description="Replace with google-firebase-messaging-ktx = { module = &quot;com.google.firebase:firebase-messaging-ktx&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="google-firebase-messaging-ktx = { module = &quot;com.google.firebase:firebase-messaging-ktx&quot; }&#xA;"
+                priority="0">
+                <range
+                    file="../gradle/libs.versions.toml"
+                    startOffset="377"
+                    endOffset="377"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.google.firebase.messaging.ktx"
+                robot="true"
+                replacement="libs.google.firebase.messaging.ktx"
+                priority="0">
+                <range
+                    file="${:android*projectDir}/build.gradle.kts"
+                    startOffset="1888"
+                    endOffset="1932"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:android*projectDir}/build.gradle.kts"
+            line="67"
+            column="20"
+            startOffset="1888"
+            endLine="67"
+            endColumn="64"
+            endOffset="1932"/>
+    </incident>
+
+    <incident
+        id="UseTomlInstead"
+        severity="warning"
+        message="Use version catalog instead">
+        <fix-composite
+            description="Replace with new library catalog declaration for google-firebase-analytics-ktx"
+            robot="true">
+            <fix-replace
+                description="Replace with google-firebase-analytics-ktx = { module = &quot;com.google.firebase:firebase-analytics-ktx&quot; }..."
+                robot="true"
+                oldString="_lint_insert_begin_"
+                replacement="google-firebase-analytics-ktx = { module = &quot;com.google.firebase:firebase-analytics-ktx&quot; }&#xA;"
+                priority="0">
+                <range
+                    file="../gradle/libs.versions.toml"
+                    startOffset="377"
+                    endOffset="377"/>
+            </fix-replace>
+            <fix-replace
+                description="Replace with libs.google.firebase.analytics.ktx"
+                robot="true"
+                replacement="libs.google.firebase.analytics.ktx"
+                priority="0">
+                <range
+                    file="${:android*projectDir}/build.gradle.kts"
+                    startOffset="1953"
+                    endOffset="1997"/>
+            </fix-replace>
+        </fix-composite>
+        <location
+            file="${:android*projectDir}/build.gradle.kts"
+            line="68"
+            column="20"
+            startOffset="1953"
+            endLine="68"
+            endColumn="64"
+            endOffset="1997"/>
+    </incident>
+
+</incidents>

@@ -36,7 +36,6 @@ import com.cinepass.ui.profile.ReferralTreeScreen
 import com.cinepass.ui.settings.SettingsScreen
 import com.cinepass.ui.wallet.WalletScreen_New
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import com.cinepass.data.prefs.UserPrefs
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -95,8 +94,7 @@ fun AppNavigation(
         ) {
             // Auth Screens
             composable(Routes.SPLASH) {
-                val context = LocalContext.current
-                val userPrefs = remember { UserPrefs(context) }
+                val userPrefs = remember { UserPrefs() }
                 SplashScreen(
                     onGetStarted = {
                         // If credentials exist but onboarding was never seen, this is a
@@ -117,8 +115,7 @@ fun AppNavigation(
             }
 
             composable(Routes.ONBOARDING) {
-                val context = LocalContext.current
-                val userPrefs = remember { UserPrefs(context) }
+                val userPrefs = remember { UserPrefs() }
                 OnboardingScreen(
                     onFinish = {
                         userPrefs.hasSeenOnboarding = true
@@ -190,8 +187,7 @@ fun AppNavigation(
             }
 
             composable(Routes.PROFILE) {
-                val context = LocalContext.current
-                val userPrefs = remember { UserPrefs(context) }
+                val userPrefs = remember { UserPrefs() }
                 ProfileScreen_New(
                     onBack = { navController.popBackStack() },
                     onLogout = {
@@ -199,7 +195,7 @@ fun AppNavigation(
                         userPrefs.clear()
                         // Pop the ENTIRE back stack then go to Login — back button cannot go back
                         navController.navigate(Routes.LOGIN) {
-                            popUpTo(navController.graph.id) { inclusive = true }
+                            popUpTo(Routes.SPLASH) { inclusive = true }
                         }
                     },
                     onNavigateToTree = { navController.navigate(Routes.REFERRAL_TREE) },
@@ -248,7 +244,7 @@ private fun AppBottomNavigation(
                 selected = isSelected,
                 onClick = {
                     navController.navigate(item.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
+                        popUpTo(Routes.HOME) {
                             saveState = true
                         }
                         launchSingleTop = true

@@ -1,5 +1,5 @@
 @file:JvmName("RegisterScreenAndroid")
-package com.cinepass.ui.auth
+package com.cinepass.ui.auth.android
 
 import android.app.DatePickerDialog
 import android.graphics.BitmapFactory

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<incidents format="6" by="lint 9.0.1" type="partial_results">
+    <map id="NotificationPermission">
+        <location id="class"
+            file="$GRADLE_USER_HOME/caches/9.2.1/transforms/9d10d7d3439f0d80753cdca3f73be70c/workspace/transformed/firebase-messaging-23.4.0/jars/classes.jar"/>
+        <entry
+            name="className"
+            string="com/google/firebase/messaging/DisplayNotification"/>
+        <entry
+            name="source"
+            boolean="true"/>
+    </map>
+    <map id="UnsafeIntentLaunch">
+            <map id="unprotected">
+                <entry
+                    name="com.cinepass.MainActivity"
+                    boolean="true"/>
+            </map>
+    </map>
+    <map id="UnusedResources">
+        <location id="R.color.black"
+            file="${:android*debug*MAIN*sourceProvider*0*resDir*0}/values/colors.xml"
+            line="8"
+            column="12"
+            startOffset="293"
+            endLine="8"
+            endColumn="24"
+            endOffset="305"/>
+        <location id="R.color.purple_200"
+            file="${:android*debug*MAIN*sourceProvider*0*resDir*0}/values/colors.xml"
+            line="3"
+            column="12"
+            startOffset="62"
+            endLine="3"
+            endColumn="29"
+            endOffset="79"/>
+        <location id="R.color.purple_500"
+            file="${:android*debug*MAIN*sourceProvider*0*resDir*0}/values/colors.xml"
+            line="4"
+            column="12"
+            startOffset="109"
+            endLine="4"
+            endColumn="29"
+            endOffset="126"/>
+        <location id="R.color.purple_700"
+            file="${:android*debug*MAIN*sourceProvider*0*resDir*0}/values/colors.xml"
+            line="5"
+            column="12"
+            startOffset="156"
+            endLine="5"
+            endColumn="29"
+            endOffset="173"/>
+        <location id="R.color.teal_200"
+            file="${:android*debug*MAIN*sourceProvider*0*resDir*0}/values/colors.xml"
+            line="6"
+            column="12"
+            startOffset="203"
+            endLine="6"
+            endColumn="27"
+            endOffset="218"/>
+        <location id="R.color.teal_700"
+            file="${:android*debug*MAIN*sourceProvider*0*resDir*0}/values/colors.xml"
+            line="7"
+            column="12"
+            startOffset="248"
+            endLine="7"
+            endColumn="27"
+            endOffset="263"/>
+        <location id="R.color.white"
+            file="${:android*debug*MAIN*sourceProvider*0*resDir*0}/values/colors.xml"
+            line="9"
+            column="12"
+            startOffset="335"
+            endLine="9"
+            endColumn="24"
+            endOffset="347"/>
+        <location id="R.drawable.ic_launcher_background"
+            file="${:android*debug*MAIN*sourceProvider*0*resDir*0}/drawable/ic_launcher_background.xml"
+            line="2"
+            column="1"
+            startOffset="39"
+            endLine="170"
+            endColumn="10"
+            endOffset="5605"/>
+        <location id="R.drawable.reg_log_page"
+            file="${:android*debug*MAIN*sourceProvider*0*resDir*0}/drawable/reg_log_page.png"/>
+        <entry
+            name="model"
+            string="color[ic_launcher_background(U),purple_200(D),purple_500(D),purple_700(D),teal_200(D),teal_700(D),black(D),white(D)],drawable[ic_launcher_background(D),ic_launcher_foreground(U),ic_launcher_foreground_1(R),reg_log_page(D)],mipmap[ic_launcher(U),ic_launcher_round(U),ic_launcher_foreground(U)],string[app_name(U)],style[Theme_Fanverse(U)],xml[data_extraction_rules(U),backup_rules(U),network_security_config(U),file_paths(U)];9^a,c^0^e,d^0^e;;;"/>
+    </map>
+
+</incidents>
