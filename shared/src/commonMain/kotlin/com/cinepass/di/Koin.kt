@@ -2,12 +2,8 @@ package com.cinepass.di
 
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
-import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import com.cinepass.utils.Constants
+import com.cinepass.data.api.createAppHttpClient
 import com.cinepass.data.prefs.UserPrefs
 import com.cinepass.data.api.ApiService
 import com.cinepass.data.api.Rs3ApiService
@@ -30,16 +26,7 @@ val appModule = module {
         }
     }
 
-    single {
-        HttpClient {
-            install(ContentNegotiation) {
-                json(get<Json>())
-            }
-            defaultRequest {
-                url(Constants.BASE_URL)
-            }
-        }
-    }
+    single { createAppHttpClient(get()) }
 
     single { ApiService(get()) }
     single { Rs3ApiService(get()) }

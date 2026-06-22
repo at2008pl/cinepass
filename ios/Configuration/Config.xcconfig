@@ -1,3 +1,4 @@
+// Set your Apple Developer Team ID (Xcode → Signing & Capabilities) for device builds.
 TEAM_ID=
 
 PRODUCT_NAME=Cinepass
@@ -5,3 +6,6 @@ PRODUCT_BUNDLE_IDENTIFIER=com.cinepass.app
 
 CURRENT_PROJECT_VERSION=1
 MARKETING_VERSION=1.0.0
+
+FRAMEWORK_SEARCH_PATHS = $(inherited) $(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
+OTHER_LDFLAGS = $(inherited) -framework ComposeApp

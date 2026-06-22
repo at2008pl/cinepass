@@ -61,12 +61,11 @@ kotlin {
             // Coil 3 KMP for Image Loading
             implementation("io.coil-kt.coil3:coil-compose:3.0.0-alpha06")
             implementation("io.coil-kt.coil3:coil-network-ktor:3.0.0-alpha06")
-            
-            // ZXing QR library
-            implementation("com.google.zxing:core:3.5.2")
         }
         
         androidMain.dependencies {
+            // ZXing QR library (JVM/Android only)
+            implementation("com.google.zxing:core:3.5.2")
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.activity.compose)
             implementation("androidx.appcompat:appcompat:1.6.1")
