@@ -71,9 +71,16 @@ suspend fun registerMultipart(
         if (httpResponse.status.isSuccess()) {
             Response.success(httpResponse.body())
         } else {
-            Response.error(httpResponse.status.value)
+            val message = httpResponse.readApiErrorMessage("Registration failed")
+            Response.error(
+                httpResponse.status.value,
+                ApiResponse<AuthData>(success = false, message = message),
+            )
         }
-    } catch (_: Exception) {
-        Response.error(500)
+    } catch (e: Exception) {
+        Response.error(
+            500,
+            ApiResponse<AuthData>(success = false, message = e.message ?: "Network error"),
+        )
     }
 }

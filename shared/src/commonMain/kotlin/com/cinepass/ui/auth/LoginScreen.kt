@@ -26,10 +26,13 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cinepass.data.api.ApiClient
-import com.cinepass.data.api.models.LoginRequest
+import com.cinepass.data.api.AuthIdentifiers
 import com.cinepass.data.prefs.UserPrefs
+import com.cinepass.data.repository.AuthRepository
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
+
+private enum class LoginMode { Password, Otp }
 
 // RS³ Design tokens (local aliases)
 private val LGold    = Color(0xFFC9973A)
@@ -48,16 +51,24 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val authRepository: AuthRepository = koinInject()
     val userPrefs = remember { UserPrefs() }
+
+    var loginMode by remember { mutableStateOf(LoginMode.Password) }
     var identifier by remember { mutableStateOf(userPrefs.rememberedIdentifier ?: "") }
     var password by remember { mutableStateOf("") }
+    var otp by remember { mutableStateOf("") }
+    var otpSent by remember { mutableStateOf(false) }
     var showPassword by remember { mutableStateOf(false) }
     var submitted by remember { mutableStateOf(false) }
     var loading by remember { mutableStateOf(false) }
+    var sendingOtp by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+    var infoMessage by remember { mutableStateOf("") }
 
-    val identifierError = submitted && identifier.isBlank()
-    val passwordError = submitted && password.length < 6
+    val identifierError = submitted && !AuthIdentifiers.isValidLoginIdentifier(identifier)
+    val passwordError = submitted && loginMode == LoginMode.Password && password.length < 6
+    val otpError = submitted && loginMode == LoginMode.Otp && !Regex("""^\d{4,6}$""").matches(otp.trim())
 
     Column(
         modifier = Modifier
@@ -65,7 +76,6 @@ fun LoginScreen(
             .background(LSurface)
             .verticalScroll(rememberScrollState())
     ) {
-        // ── Dark branding header ──────────────────────────────────────────
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -76,20 +86,15 @@ fun LoginScreen(
                         end = androidx.compose.ui.geometry.Offset(400f, 300f)
                     )
                 )
-                .clip(
-                    RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)
-                )
+                .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
         ) {
             Column(modifier = Modifier.padding(horizontal = 28.dp, vertical = 32.dp)) {
-                // Logo row
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(
-                                Brush.linearGradient(listOf(Color(0xFF8A5C1A), LGold))
-                            ),
+                            .background(Brush.linearGradient(listOf(Color(0xFF8A5C1A), LGold))),
                         contentAlignment = Alignment.Center
                     ) {
                         Text("🎬", fontSize = 18.sp)
@@ -129,79 +134,181 @@ fun LoginScreen(
             }
         }
 
-        // ── Form area ─────────────────────────────────────────────────────
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 28.dp)
                 .padding(top = 32.dp, bottom = 40.dp)
         ) {
-            // Email / identifier
-            Text("Email or Mobile Number", color = LMuted, fontSize = 12.sp, fontWeight = FontWeight.Medium)
-            Spacer(Modifier.height(6.dp))
-            OutlinedTextField(
-                value = identifier,
-                onValueChange = { identifier = it },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("arjun@mail.com", color = LMuted.copy(alpha = 0.5f)) },
-                singleLine = true,
-                isError = identifierError,
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = LGold,
-                    unfocusedBorderColor = LFaint,
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedTextColor = LInk2,
-                    unfocusedTextColor = LInk2
-                )
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            // Password
-            Text("Password", color = LMuted, fontSize = 12.sp, fontWeight = FontWeight.Medium)
-            Spacer(Modifier.height(6.dp))
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("••••••••", color = LMuted.copy(alpha = 0.5f)) },
-                singleLine = true,
-                isError = passwordError,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    IconButton(onClick = { showPassword = !showPassword }) {
-                        Icon(
-                            if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = null,
-                            tint = LMuted
-                        )
-                    }
-                },
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = LGold,
-                    unfocusedBorderColor = LFaint,
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedTextColor = LInk2,
-                    unfocusedTextColor = LInk2
-                )
-            )
-
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
-                horizontalArrangement = Arrangement.End
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(LFaint)
+                    .padding(4.dp)
             ) {
-                Text(
-                    text = "Forgot Password?",
-                    color = LGold,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.clickable { }
+                LoginModeTab(
+                    label = "Password",
+                    selected = loginMode == LoginMode.Password,
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        loginMode = LoginMode.Password
+                        errorMessage = ""
+                        infoMessage = ""
+                        submitted = false
+                    }
                 )
+                LoginModeTab(
+                    label = "OTP",
+                    selected = loginMode == LoginMode.Otp,
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        loginMode = LoginMode.Otp
+                        errorMessage = ""
+                        infoMessage = ""
+                        submitted = false
+                    }
+                )
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            if (loginMode == LoginMode.Password) {
+                Text("Email or Mobile Number", color = LMuted, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                Spacer(Modifier.height(6.dp))
+                OutlinedTextField(
+                    value = identifier,
+                    onValueChange = { identifier = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("arjun@mail.com or 9876543210", color = LMuted.copy(alpha = 0.5f)) },
+                    singleLine = true,
+                    isError = identifierError,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = loginFieldColors()
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                Text("Password", color = LMuted, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                Spacer(Modifier.height(6.dp))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("••••••••", color = LMuted.copy(alpha = 0.5f)) },
+                    singleLine = true,
+                    isError = passwordError,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { showPassword = !showPassword }) {
+                            Icon(
+                                if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                contentDescription = null,
+                                tint = LMuted
+                            )
+                        }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = loginFieldColors()
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Text(
+                        text = "Forgot Password?",
+                        color = LGold,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.clickable {
+                            errorMessage = ""
+                            infoMessage = "Use OTP login or contact support to reset your password."
+                        }
+                    )
+                }
+            } else {
+                Text("Mobile Number", color = LMuted, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                Spacer(Modifier.height(6.dp))
+                OutlinedTextField(
+                    value = identifier,
+                    onValueChange = {
+                        identifier = it.filter { c -> c.isDigit() || c == '+' }.take(13)
+                        otpSent = false
+                        otp = ""
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("9876543210", color = LMuted.copy(alpha = 0.5f)) },
+                    singleLine = true,
+                    isError = identifierError,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = loginFieldColors()
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                OutlinedButton(
+                    onClick = {
+                        submitted = true
+                        if (!AuthIdentifiers.isValidPhone(identifier)) {
+                            errorMessage = "Enter a valid 10-digit mobile number."
+                            return@OutlinedButton
+                        }
+                        sendingOtp = true
+                        errorMessage = ""
+                        infoMessage = ""
+                        coroutineScope.launch {
+                            authRepository.sendLoginOtp(identifier)
+                                .onSuccess { message ->
+                                    otpSent = true
+                                    infoMessage = message
+                                }
+                                .onFailure { error ->
+                                    errorMessage = error.message ?: "Failed to send OTP"
+                                }
+                            sendingOtp = false
+                        }
+                    },
+                    enabled = !sendingOtp && !loading,
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, LGold),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = LGold)
+                ) {
+                    Text(
+                        text = when {
+                            sendingOtp -> "Sending OTP…"
+                            otpSent -> "Resend OTP"
+                            else -> "Send OTP"
+                        },
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
+                if (otpSent) {
+                    Spacer(Modifier.height(16.dp))
+                    Text("OTP", color = LMuted, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.height(6.dp))
+                    OutlinedTextField(
+                        value = otp,
+                        onValueChange = { otp = it.filter { c -> c.isDigit() }.take(6) },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("6-digit code", color = LMuted.copy(alpha = 0.5f)) },
+                        singleLine = true,
+                        isError = otpError,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = loginFieldColors()
+                    )
+                }
+            }
+
+            if (infoMessage.isNotBlank()) {
+                Spacer(Modifier.height(8.dp))
+                Text(text = infoMessage, color = LGold, fontSize = 12.sp)
             }
 
             if (errorMessage.isNotBlank()) {
@@ -211,49 +318,51 @@ fun LoginScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // Sign In — gold button
             Button(
                 onClick = {
                     submitted = true
-                    if (identifierError || passwordError) {
-                        errorMessage = "Enter valid credentials."
-                        return@Button
-                    }
-                    loading = true
                     errorMessage = ""
-                    coroutineScope.launch {
-                        try {
-                            val response = ApiClient.apiService.login(
-                                LoginRequest(identifier = identifier.trim(), password = password)
-                            )
-                            if (response.isSuccessful && response.body()?.success == true) {
-                                val auth = response.body()?.data
-                                if (auth != null) {
-                                    userPrefs.saveAuthData(
-                                        accessToken = auth.accessToken,
-                                        refreshToken = auth.refreshToken,
-                                        userId = auth.user.id,
-                                        name = auth.user.name,
-                                        email = auth.user.email,
-                                        phone = auth.user.phone,
-                                        referralCode = auth.user.referralCode,
-                                        coins = auth.user.coins,
-                                        isVerified = auth.user.isVerified,
-                                        selfieUrl = auth.user.selfieUrl,
-                                    )
-                                }
-                                onLoginSuccess()
-                            } else {
-                                errorMessage = response.body()?.message ?: "Login failed"
+                    infoMessage = ""
+
+                    when (loginMode) {
+                        LoginMode.Password -> {
+                            if (identifierError || passwordError) {
+                                errorMessage = "Enter a valid email/phone and password (min 6 characters)."
+                                return@Button
                             }
-                        } catch (e: Exception) {
-                            errorMessage = e.message ?: "Network error"
-                        } finally {
-                            loading = false
+                            loading = true
+                            coroutineScope.launch {
+                                authRepository.loginWithPassword(identifier, password)
+                                    .onSuccess { onLoginSuccess() }
+                                    .onFailure { error ->
+                                        errorMessage = error.message ?: "Login failed"
+                                    }
+                                loading = false
+                            }
+                        }
+
+                        LoginMode.Otp -> {
+                            if (!otpSent) {
+                                errorMessage = "Send OTP to your mobile number first."
+                                return@Button
+                            }
+                            if (identifierError || otpError) {
+                                errorMessage = "Enter a valid mobile number and OTP."
+                                return@Button
+                            }
+                            loading = true
+                            coroutineScope.launch {
+                                authRepository.verifyLoginOtp(identifier, otp)
+                                    .onSuccess { onLoginSuccess() }
+                                    .onFailure { error ->
+                                        errorMessage = error.message ?: "OTP verification failed"
+                                    }
+                                loading = false
+                            }
                         }
                     }
                 },
-                enabled = !loading,
+                enabled = !loading && !sendingOtp && (loginMode != LoginMode.Otp || otpSent),
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -270,7 +379,6 @@ fun LoginScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            // Create Account — ghost button
             OutlinedButton(
                 onClick = onNavigateToRegister,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
@@ -283,7 +391,6 @@ fun LoginScreen(
 
             Spacer(Modifier.height(28.dp))
 
-            // Security note
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
@@ -299,3 +406,37 @@ fun LoginScreen(
         }
     }
 }
+
+@Composable
+private fun LoginModeTab(
+    label: String,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (selected) Color.White else Color.Transparent)
+            .clickable(onClick = onClick)
+            .padding(vertical = 10.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            color = if (selected) LInk2 else LMuted,
+            fontSize = 13.sp,
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium
+        )
+    }
+}
+
+@Composable
+private fun loginFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedBorderColor = LGold,
+    unfocusedBorderColor = LFaint,
+    focusedContainerColor = Color.White,
+    unfocusedContainerColor = Color.White,
+    focusedTextColor = LInk2,
+    unfocusedTextColor = LInk2
+)

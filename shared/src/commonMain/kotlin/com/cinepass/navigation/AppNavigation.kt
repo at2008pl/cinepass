@@ -121,6 +121,7 @@ fun AppNavigation(
                         userPrefs.hasSeenOnboarding = true
                         navController.navigate(Routes.REGISTER) {
                             popUpTo(Routes.ONBOARDING) { inclusive = true }
+                            launchSingleTop = true
                         }
                     }
                 )
@@ -131,11 +132,12 @@ fun AppNavigation(
                     onLoginSuccess = {
                         navController.navigate(Routes.HOME) {
                             popUpTo(Routes.LOGIN) { inclusive = true }
+                            launchSingleTop = true
                         }
                     },
                     onNavigateToRegister = {
                         navController.navigate(Routes.REGISTER) {
-                            popUpTo(Routes.LOGIN) { inclusive = true }
+                            launchSingleTop = true
                         }
                     }
                 )
@@ -146,11 +148,12 @@ fun AppNavigation(
                     onRegisterSuccess = {
                         navController.navigate(Routes.HOME) {
                             popUpTo(Routes.REGISTER) { inclusive = true }
+                            launchSingleTop = true
                         }
                     },
                     onNavigateToLogin = {
                         navController.navigate(Routes.LOGIN) {
-                            popUpTo(Routes.REGISTER) { inclusive = true }
+                            launchSingleTop = true
                         }
                     }
                 )

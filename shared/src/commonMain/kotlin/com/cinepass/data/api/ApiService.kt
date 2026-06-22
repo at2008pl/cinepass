@@ -85,7 +85,7 @@ class ApiService(private val client: HttpClient) {
     suspend fun sendOtp(request: OtpSendRequest): Response<ApiResponse<Any>> =
         safePost("auth/app/otp/send", request)
 
-    suspend fun verifyOtp(request: VerifyOtpRequest): Response<ApiResponse<AuthData>> =
+    suspend fun verifyOtp(request: OtpVerifyRequest): Response<OtpVerifyResponse> =
         safePost("auth/app/otp/verify", request)
     
     suspend fun getProfile(): Response<User> =

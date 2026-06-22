@@ -48,6 +48,84 @@ import kotlinx.coroutines.withContext
 
 private val EMAIL_REGEX = Regex("""^[A-Za-z0-9+_.'-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$""")
 
+private fun validateRegistrationForm(
+    fullName: String,
+    email: String,
+    phone: String,
+    gender: String,
+    dob: String,
+    addressLine: String,
+    city: String,
+    state: String,
+    pincode: String,
+    referralCode: String,
+    password: String,
+    confirmPassword: String,
+    otp: String,
+    hasSelfie: Boolean,
+): String? {
+    val trimmedName = fullName.trim()
+    when {
+        trimmedName.isEmpty() -> return "Full name is required"
+        trimmedName.length < 3 -> return "Minimum 3 characters for full name"
+        !trimmedName.matches(Regex("^[a-zA-Z\\s.'-]+$")) -> return "Full name: letters and spaces only"
+    }
+
+    val trimmedEmail = email.trim()
+    when {
+        trimmedEmail.isEmpty() -> return "Email address is required"
+        !EMAIL_REGEX.matches(trimmedEmail) -> return "Invalid email format"
+    }
+
+    val phoneDigits = phone.filter { it.isDigit() }
+    when {
+        phoneDigits.isEmpty() -> return "Mobile number is required"
+        phoneDigits.length != 10 -> return "Mobile number must be exactly 10 digits"
+        !phoneDigits.matches(Regex("^[6-9]\\d{9}$")) -> return "Mobile number must begin with 6, 7, 8 or 9"
+    }
+
+    if (gender.isBlank()) return "Please select gender"
+    if (dob.isBlank()) return "Date of birth is required"
+
+    val trimmedPincode = pincode.trim()
+    when {
+        trimmedPincode.isEmpty() -> return "Pincode is required"
+        !trimmedPincode.matches(Regex("^\\d{6}$")) -> return "Pincode must be exactly 6 digits"
+    }
+
+    if (state.trim().isEmpty()) return "State is required"
+    if (city.trim().isEmpty()) return "City is required"
+
+    when {
+        addressLine.trim().isEmpty() -> return "Address is required"
+        addressLine.trim().length < 5 -> return "Please enter your full address"
+    }
+
+    val trimmedReferral = referralCode.trim()
+    when {
+        trimmedReferral.isEmpty() -> return "Referral code is required"
+        !trimmedReferral.matches(Regex("^RS3_[A-Z0-9]{4,10}$", RegexOption.IGNORE_CASE)) ->
+            return "Invalid referral code — expected RS3_XXXXXX"
+    }
+
+    when {
+        password.isEmpty() -> return "Password is required"
+        password.length < 8 -> return "Password must be at least 8 characters"
+        confirmPassword.isEmpty() -> return "Please confirm your password"
+        confirmPassword != password -> return "Passwords do not match"
+    }
+
+    val trimmedOtp = otp.trim()
+    when {
+        trimmedOtp.isEmpty() -> return "OTP is required"
+        !trimmedOtp.matches(Regex("^\\d{4,6}$")) -> return "Enter the 4–6 digit OTP"
+    }
+
+    if (!hasSelfie) return "Selfie is required"
+
+    return null
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    RS³ FILMS — REGISTRATION  |  Light · Luxury · Editorial
    Palette: Warm ivory parchment + champagne gold + near-black ink
@@ -113,6 +191,8 @@ fun RegisterScreenContent(
         val pending = referralPrefs.getPendingReferralCode().first()
         if (!pending.isNullOrBlank() && referralCode.isBlank()) {
             referralCode = pending
+        } else if (referralCode.isBlank()) {
+            referralCode = "RS3_DEFAULT"
         }
     }
     
@@ -196,13 +276,9 @@ fun RegisterScreenContent(
         }
     } else null
     
-    val stateError = if (submitted && pincode.matches(Regex("^\\d{6}$")) && state.trim().isEmpty()) {
-        "State auto-fill failed - check pincode"
-    } else null
+    val stateError = if (submitted && state.trim().isEmpty()) "State is required" else null
     
-    val cityError = if (submitted && pincode.matches(Regex("^\\d{6}$")) && city.trim().isEmpty()) {
-        "City auto-fill failed - check pincode"
-    } else null
+    val cityError = if (submitted && city.trim().isEmpty()) "City is required" else null
     
     val addressError = if (submitted) {
         when {
@@ -225,9 +301,6 @@ fun RegisterScreenContent(
         when {
             password.isEmpty() -> "Password is required"
             password.length < 8 -> "Minimum 8 characters"
-            !password.any { it.isUpperCase() } -> "Include one uppercase letter"
-            !password.any { it.isDigit() } -> "Include one number"
-            !password.any { !it.isLetterOrDigit() } -> "Include one special character"
             else -> null
         }
     } else null
@@ -278,6 +351,8 @@ fun RegisterScreenContent(
     
     
     // ── UI Layout ────────────────────────────────────────────────────────────
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -337,7 +412,7 @@ fun RegisterScreenContent(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -462,23 +537,21 @@ fun RegisterScreenContent(
                 ) {
                     RegistrationField(
                         value = state,
-                        onValueChange = {},
+                        onValueChange = { state = it },
                         label = "State",
                         error = stateError,
                         touched = submitted,
                         hint = "Auto-filled from pincode",
-                        readOnly = true,
                         modifier = Modifier.weight(1f)
                     )
                     
                     RegistrationField(
                         value = city,
-                        onValueChange = {},
+                        onValueChange = { city = it },
                         label = "City",
                         error = cityError,
                         touched = submitted,
                         hint = "Auto-filled from pincode",
-                        readOnly = true,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -617,100 +690,100 @@ fun RegisterScreenContent(
                 )
             }
 
-            Button(
-                onClick = {
-                    submitted = true
-
-                    val hasErrors = listOfNotNull(
-                        nameError, emailError, phoneError, genderError, dobError,
-                        addressError, cityError, stateError, pincodeError,
-                        referralError, passwordError, confirmError, otpError
-                    ).isNotEmpty()
-
-                    if (hasErrors) {
-                        errorMessage = "Please fix the highlighted fields"
-                        return@Button
-                    }
-
-                    if (selfie == null) {
-                        errorMessage = "Selfie is required"
-                        return@Button
-                    }
-
-                    loading = true
-                    errorMessage = ""
-
-                    coroutineScope.launch {
-                        try {
-                            val image = selfie!!
-                            val response = ApiClient.apiService.register(
-                                RegisterFormData(
-                                    name = fullName.trim(),
-                                    email = email.trim(),
-                                    phone = "+91$phoneDigits",
-                                    gender = gender.trim().ifBlank { null },
-                                    dob = dob.trim().ifBlank { null },
-                                    addressLine = addressLine.trim().ifBlank { null },
-                                    city = city.trim().ifBlank { null },
-                                    state = state.trim().ifBlank { null },
-                                    pincode = pincode.trim().ifBlank { null },
-                                    password = password,
-                                    confirmPassword = confirmPassword,
-                                    referralCode = referralCode.trim().ifBlank { null },
-                                    otp = otp.trim(),
-                                    selfieBytes = image.bytes,
-                                )
-                            )
-
-                            if (response.isSuccessful && response.body()?.success == true) {
-                                response.body()?.data?.let { auth ->
-                                    userPrefs.saveAuthData(
-                                        accessToken = auth.accessToken,
-                                        refreshToken = auth.refreshToken,
-                                        userId = auth.user.id,
-                                        name = auth.user.name,
-                                        email = auth.user.email,
-                                        phone = auth.user.phone,
-                                        referralCode = auth.user.referralCode,
-                                        coins = auth.user.coins,
-                                        isVerified = auth.user.isVerified,
-                                        selfieUrl = auth.user.selfieUrl
-                                    )
-                                }
-                                referralPrefs.clearPendingReferralCode()
-                                onRegisterSuccess()
-                            } else {
-                                errorMessage = response.body()?.message ?: "Registration failed"
-                            }
-                        } catch (e: Exception) {
-                            errorMessage = e.message ?: "Network error"
-                        } finally {
-                            loading = false
-                        }
-                    }
-                },
-                enabled = !loading,
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = T_Surface
-                ),
-                contentPadding = PaddingValues(0.dp),
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp)
-                    .border(
-                        width = 1.dp,
-                        color = T_GoldBright,
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .background(G_GoldH, RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(G_GoldH)
+                    .border(1.dp, T_GoldBright, RoundedCornerShape(8.dp))
+                    .clickable(enabled = !loading) {
+                        submitted = true
+
+                        val validationError = validateRegistrationForm(
+                            fullName = fullName,
+                            email = email,
+                            phone = phone,
+                            gender = gender,
+                            dob = dob,
+                            addressLine = addressLine,
+                            city = city,
+                            state = state,
+                            pincode = pincode,
+                            referralCode = referralCode,
+                            password = password,
+                            confirmPassword = confirmPassword,
+                            otp = otp,
+                            hasSelfie = selfie != null,
+                        )
+
+                        if (validationError != null) {
+                            errorMessage = validationError
+                            coroutineScope.launch { scrollState.scrollTo(0) }
+                            return@clickable
+                        }
+
+                        loading = true
+                        errorMessage = ""
+
+                        coroutineScope.launch {
+                            try {
+                                val image = selfie!!
+                                val response = ApiClient.apiService.register(
+                                    RegisterFormData(
+                                        name = fullName.trim(),
+                                        email = email.trim(),
+                                        phone = "+91${phone.filter { it.isDigit() }}",
+                                        gender = gender.trim().ifBlank { null },
+                                        dob = dob.trim().ifBlank { null },
+                                        addressLine = addressLine.trim().ifBlank { null },
+                                        city = city.trim().ifBlank { null },
+                                        state = state.trim().ifBlank { null },
+                                        pincode = pincode.trim().ifBlank { null },
+                                        password = password,
+                                        confirmPassword = confirmPassword,
+                                        referralCode = referralCode.trim().ifBlank { null },
+                                        otp = otp.trim(),
+                                        selfieBytes = image.bytes,
+                                    )
+                                )
+
+                                if (response.isSuccessful && response.body()?.success == true) {
+                                    response.body()?.data?.let { auth ->
+                                        userPrefs.saveAuthData(
+                                            accessToken = auth.accessToken,
+                                            refreshToken = auth.refreshToken,
+                                            userId = auth.user.id,
+                                            name = auth.user.name,
+                                            email = auth.user.email,
+                                            phone = auth.user.phone,
+                                            referralCode = auth.user.referralCode,
+                                            coins = auth.user.coins,
+                                            isVerified = auth.user.isVerified,
+                                            selfieUrl = auth.user.selfieUrl
+                                        )
+                                    }
+                                    referralPrefs.clearPendingReferralCode()
+                                    onRegisterSuccess()
+                                } else {
+                                    errorMessage = response.body()?.message
+                                        ?: "Registration failed (HTTP ${response.code()})"
+                                }
+                            } catch (e: Exception) {
+                                errorMessage = e.message ?: "Network error"
+                            } finally {
+                                loading = false
+                            }
+                        }
+                    },
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = if (loading) "REGISTERING..." else "CREATE ACCOUNT",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
-                    letterSpacing = 3.sp
+                    letterSpacing = 3.sp,
+                    color = T_Surface
                 )
             }
 
