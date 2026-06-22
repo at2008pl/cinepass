@@ -23,4 +23,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "cinepass"
-include(":composeApp")
+include(":shared")
+include(":android")
