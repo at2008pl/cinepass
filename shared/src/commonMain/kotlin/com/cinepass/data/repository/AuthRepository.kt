@@ -148,7 +148,7 @@ class AuthRepository(
                 val message = response.readApiErrorMessage("Registration failed")
                 error(
                     when (status) {
-                        405 -> "Registration API blocked by server (HTTP 405). Run the backend locally on port 8055, or fix nginx to allow POST /v1/auth/register."
+                        405 -> "Registration API blocked by server (HTTP 405). Check nginx allows POST /v1/auth/register on port 6055."
                         409 -> message
                         else -> message
                     }

@@ -116,7 +116,7 @@ fun ReferralScreen_New(
                                     onClick = {
                                         val code = uiState.referralCode.ifEmpty { return@Button }
                                         PlatformActions.shareText(
-                                            "🎬 Join RS³ Films – India's most exclusive film fan club!\n\nDownload the app using my referral link and get exclusive access:\n\nhttp://117.198.99.60:8085/dl?ref=$code"
+                                            "🎬 Join RS³ Films – India's most exclusive film fan club!\n\nDownload the app using my referral link and get exclusive access:\n\n${com.cinepass.utils.HOSTED_WEB_BASE_URL}/dl?ref=$code"
                                         )
                                     },
                                     modifier = Modifier.weight(1f).height(44.dp),

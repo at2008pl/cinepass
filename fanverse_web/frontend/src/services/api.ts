@@ -1,6 +1,6 @@
 /**
  * API Service Layer — Live backend integration
- * Backend: Express.js @ http://localhost:4001/v1
+ * Backend: Express.js @ http://117.198.99.60:6055/v1
  */
 
 import {
@@ -12,7 +12,7 @@ import {
 
 // ── Configuration ──────────────────────────────────────
 const USE_MOCK = false;
-const API_BASE = 'http://localhost:4001/v1';
+const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://117.198.99.60:6055/v1';
 
 // ── Helpers ────────────────────────────────────────────
 function formatDate(iso: string | null | undefined): string {
