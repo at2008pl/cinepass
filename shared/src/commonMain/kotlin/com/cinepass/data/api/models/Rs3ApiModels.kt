@@ -44,6 +44,8 @@ data class OtpVerifyRequest(
     @SerialName("otp") val otp: String
 )
 
+typealias VerifyOtpRequest = OtpVerifyRequest
+
 @Serializable
 data class OtpVerifyResponse(
     @SerialName("token") val token: String,

@@ -28,9 +28,8 @@ data class LoginRequest(
 )
 
 @Serializable
-data class VerifyOtpRequest(
-    val phone: String,
-    val code: String
+data class MessageResponse(
+    val message: String? = null,
 )
 
 // ─── Responses ───────────────

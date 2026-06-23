@@ -18,7 +18,7 @@ const uploadRoutes = require('./routes/upload');
 const appRoutes = require('./routes/app');
 
 const app = express();
-const PORT = process.env.PORT ||8085;
+const PORT = process.env.PORT || 6055;
 
 console.log('DATABASE_URL at startup:', process.env.DATABASE_URL);
 

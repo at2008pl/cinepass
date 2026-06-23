@@ -1,17 +1,27 @@
 package com.cinepass
 
 import androidx.compose.ui.window.ComposeUIViewController
-import platform.UIKit.UIViewController
+import com.cinepass.data.preferences.ReferralPreferences
 import com.cinepass.di.initKoin
 import com.cinepass.navigation.AppNavigation
 import com.cinepass.ui.theme.CinepassTheme
-import com.cinepass.ui.auth.RegisterScreenProvider
-import com.cinepass.ui.auth.IosRegisterScreen
+import com.cinepass.utils.ClipboardHelper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import platform.UIKit.UIViewController
+
+private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
 fun MainViewController(): UIViewController {
     initKoin()
-    RegisterScreenProvider.content = { onSuccess, onLogin ->
-        IosRegisterScreen(onSuccess, onLogin)
+    appScope.launch {
+        val referralPrefs = ReferralPreferences()
+        val clipboardCode = ClipboardHelper.getReferralCodeFromClipboard()
+        if (!clipboardCode.isNullOrBlank()) {
+            referralPrefs.savePendingReferralCode(clipboardCode)
+        }
     }
     return ComposeUIViewController {
         CinepassTheme {

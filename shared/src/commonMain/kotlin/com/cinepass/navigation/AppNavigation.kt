@@ -121,6 +121,7 @@ fun AppNavigation(
                         userPrefs.hasSeenOnboarding = true
                         navController.navigate(Routes.REGISTER) {
                             popUpTo(Routes.ONBOARDING) { inclusive = true }
+                            launchSingleTop = true
                         }
                     }
                 )
@@ -131,11 +132,12 @@ fun AppNavigation(
                     onLoginSuccess = {
                         navController.navigate(Routes.HOME) {
                             popUpTo(Routes.LOGIN) { inclusive = true }
+                            launchSingleTop = true
                         }
                     },
                     onNavigateToRegister = {
                         navController.navigate(Routes.REGISTER) {
-                            popUpTo(Routes.LOGIN) { inclusive = true }
+                            launchSingleTop = true
                         }
                     }
                 )
@@ -146,11 +148,12 @@ fun AppNavigation(
                     onRegisterSuccess = {
                         navController.navigate(Routes.HOME) {
                             popUpTo(Routes.REGISTER) { inclusive = true }
+                            launchSingleTop = true
                         }
                     },
                     onNavigateToLogin = {
                         navController.navigate(Routes.LOGIN) {
-                            popUpTo(Routes.REGISTER) { inclusive = true }
+                            launchSingleTop = true
                         }
                     }
                 )
@@ -211,7 +214,10 @@ fun AppNavigation(
                 route = Routes.OFFER_DETAIL,
                 arguments = listOf(navArgument("offerId") { type = NavType.IntType })
             ) { backStackEntry ->
-                val offerId = backStackEntry.arguments?.getInt("offerId") ?: return@composable
+                val offerId = backStackEntry.destination.route
+                    ?.removePrefix("offer_detail/")
+                    ?.toIntOrNull()
+                    ?: return@composable
                 OfferDetailScreen(
                     offerId = offerId,
                     onBack = { navController.popBackStack() }

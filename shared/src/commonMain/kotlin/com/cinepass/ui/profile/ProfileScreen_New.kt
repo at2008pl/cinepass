@@ -452,7 +452,7 @@ private fun ProfileHeader(profile: Rs3Profile?, onLogout: () -> Unit) {
                         .clickable {
                             val code = profile?.referralCode ?: return@clickable
                             PlatformActions.shareText(
-                                "🎬 Join RS³ Films – India's most exclusive film fan club!\n\nDownload the app using my referral link and get exclusive access:\n\nhttp://192.168.29.211:4001/dl?ref=$code"
+                                "🎬 Join RS³ Films – India's most exclusive film fan club!\n\nDownload the app using my referral link and get exclusive access:\n\n${com.cinepass.utils.HOSTED_WEB_BASE_URL}/dl?ref=$code"
                             )
                         }
                         .padding(horizontal = 12.dp, vertical = 6.dp)
