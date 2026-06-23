@@ -1,8 +1,8 @@
 package com.cinepass.utils
 
 object Constants {
-    // RS³ Films Backend API (fanverse_web)
-    const val BASE_URL = "http://117.198.99.60:8055/v1/"
+    // RS³ Films Backend API (fanverse_web) — see getApiBaseUrl() for platform overrides
+    val BASE_URL: String get() = getApiBaseUrl()
     const val PUBLIC_WEB_BASE_URL = "https://rs3films.com"
     const val APP_PACKAGE_NAME = "com.cinepass"
     

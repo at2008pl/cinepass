@@ -41,10 +41,12 @@ import com.cinepass.data.api.RegisterFormData
 import com.cinepass.data.api.lookupPincode
 import com.cinepass.data.prefs.UserPrefs
 import com.cinepass.data.preferences.ReferralPreferences
+import com.cinepass.data.repository.AuthRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.koin.compose.koinInject
 
 private val EMAIL_REGEX = Regex("""^[A-Za-z0-9+_.'-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$""")
 
@@ -168,6 +170,7 @@ fun RegisterScreenContent(
     onNavigateToLogin: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val authRepository: AuthRepository = koinInject()
     val userPrefs = remember { UserPrefs() }
     val referralPrefs = remember { ReferralPreferences() }
     
@@ -727,53 +730,35 @@ fun RegisterScreenContent(
                         errorMessage = ""
 
                         coroutineScope.launch {
-                            try {
-                                val image = selfie!!
-                                val response = ApiClient.apiService.register(
-                                    RegisterFormData(
-                                        name = fullName.trim(),
-                                        email = email.trim(),
-                                        phone = "+91${phone.filter { it.isDigit() }}",
-                                        gender = gender.trim().ifBlank { null },
-                                        dob = dob.trim().ifBlank { null },
-                                        addressLine = addressLine.trim().ifBlank { null },
-                                        city = city.trim().ifBlank { null },
-                                        state = state.trim().ifBlank { null },
-                                        pincode = pincode.trim().ifBlank { null },
-                                        password = password,
-                                        confirmPassword = confirmPassword,
-                                        referralCode = referralCode.trim().ifBlank { null },
-                                        otp = otp.trim(),
-                                        selfieBytes = image.bytes,
-                                    )
-                                )
+                            val form = RegisterFormData(
+                                name = fullName.trim(),
+                                email = email.trim(),
+                                phone = "+91${phone.filter { it.isDigit() }}",
+                                gender = gender.trim().ifBlank { null },
+                                dob = dob.trim().ifBlank { null },
+                                addressLine = addressLine.trim().ifBlank { null },
+                                city = city.trim().ifBlank { null },
+                                state = state.trim().ifBlank { null },
+                                pincode = pincode.trim().ifBlank { null },
+                                password = password,
+                                confirmPassword = confirmPassword,
+                                referralCode = referralCode.trim().ifBlank { null },
+                                otp = otp.trim(),
+                                selfieBytes = selfie!!.bytes,
+                            )
 
-                                if (response.isSuccessful && response.body()?.success == true) {
-                                    response.body()?.data?.let { auth ->
-                                        userPrefs.saveAuthData(
-                                            accessToken = auth.accessToken,
-                                            refreshToken = auth.refreshToken,
-                                            userId = auth.user.id,
-                                            name = auth.user.name,
-                                            email = auth.user.email,
-                                            phone = auth.user.phone,
-                                            referralCode = auth.user.referralCode,
-                                            coins = auth.user.coins,
-                                            isVerified = auth.user.isVerified,
-                                            selfieUrl = auth.user.selfieUrl
-                                        )
-                                    }
+                            authRepository.register(form)
+                                .onSuccess {
                                     referralPrefs.clearPendingReferralCode()
-                                    onRegisterSuccess()
-                                } else {
-                                    errorMessage = response.body()?.message
-                                        ?: "Registration failed (HTTP ${response.code()})"
+                                    withContext(Dispatchers.Main) {
+                                        onRegisterSuccess()
+                                    }
                                 }
-                            } catch (e: Exception) {
-                                errorMessage = e.message ?: "Network error"
-                            } finally {
-                                loading = false
-                            }
+                                .onFailure { error ->
+                                    errorMessage = error.message ?: "Registration failed"
+                                }
+
+                            loading = false
                         }
                     },
                 contentAlignment = Alignment.Center,

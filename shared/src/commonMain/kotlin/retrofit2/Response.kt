@@ -3,14 +3,15 @@ package retrofit2
 class Response<T> private constructor(
     private val isSuccess: Boolean,
     private val body: T?,
-    private val code: Int
+    private val code: Int,
 ) {
     val isSuccessful: Boolean get() = isSuccess
     fun body(): T? = body
     fun code(): Int = code
+    fun errorBody(): T? = if (!isSuccess) body else null
 
     companion object {
-        fun <T> success(body: T?): Response<T> = Response(true, body, 200)
-        fun <T> error(code: Int, errorBody: Any? = null): Response<T> = Response(false, null, code)
+        fun <T> success(body: T?, code: Int = 200): Response<T> = Response(true, body, code)
+        fun <T> error(code: Int, errorBody: T? = null): Response<T> = Response(false, errorBody, code)
     }
 }

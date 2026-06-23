@@ -69,7 +69,7 @@ suspend fun registerMultipart(
             )
         }
         if (httpResponse.status.isSuccess()) {
-            Response.success(httpResponse.body())
+            Response.success(httpResponse.body(), httpResponse.status.value)
         } else {
             val message = httpResponse.readApiErrorMessage("Registration failed")
             Response.error(
