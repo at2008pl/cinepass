@@ -47,16 +47,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import com.cinepass.data.api.ApiClient
+import com.cinepass.data.api.RegisterFormData
 import com.cinepass.data.prefs.UserPrefs
 import com.cinepass.data.preferences.ReferralPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import java.io.File
 import java.io.InputStream
@@ -926,31 +923,30 @@ fun AndroidRegisterScreen(
                                 tempFile
                             }
 
-                            val selfiePart = file?.let {
-                                val reqFile = it.asRequestBody("image/*".toMediaTypeOrNull())
-                                MultipartBody.Part.createFormData("selfie", it.name, reqFile)
-                            } ?: run {
+                            val selfieBytes = file?.readBytes() ?: run {
                                 errorMessage = "Failed to process selfie"
                                 loading = false
                                 return@launch
                             }
 
-                            val plain = "text/plain".toMediaTypeOrNull()
                             val response = ApiClient.apiService.register(
-                                name = fullName.trim().toRequestBody(plain),
-                                email = email.trim().toRequestBody(plain),
-                                phone = "+91$phoneDigits".toRequestBody(plain),
-                                gender = gender.trim().ifBlank { null }?.toRequestBody(plain),
-                                dob = dob.trim().ifBlank { null }?.toRequestBody(plain),
-                                addressLine = addressLine.trim().ifBlank { null }?.toRequestBody(plain),
-                                city = city.trim().ifBlank { null }?.toRequestBody(plain),
-                                state = state.trim().ifBlank { null }?.toRequestBody(plain),
-                                pincode = pincode.trim().ifBlank { null }?.toRequestBody(plain),
-                                password = password.toRequestBody(plain),
-                                confirmPassword = confirmPassword.toRequestBody(plain),
-                                referralCode = referralCode.trim().ifBlank { null }?.toRequestBody(plain),
-                                otp = otp.trim().toRequestBody(plain),
-                                selfie = selfiePart
+                                RegisterFormData(
+                                    name = fullName.trim(),
+                                    email = email.trim(),
+                                    phone = "+91$phoneDigits",
+                                    gender = gender.trim().ifBlank { null },
+                                    dob = dob.trim().ifBlank { null },
+                                    addressLine = addressLine.trim().ifBlank { null },
+                                    city = city.trim().ifBlank { null },
+                                    state = state.trim().ifBlank { null },
+                                    pincode = pincode.trim().ifBlank { null },
+                                    password = password,
+                                    confirmPassword = confirmPassword,
+                                    referralCode = referralCode.trim().ifBlank { null },
+                                    otp = otp.trim(),
+                                    selfieBytes = selfieBytes,
+                                    selfieFileName = file.name,
+                                )
                             )
 
                             if (response.isSuccessful && response.body()?.success == true) {

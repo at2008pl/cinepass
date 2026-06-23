@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.cinepass.android-mergeDebugResources-71:/values-v26/values-v26.xml",
+            "outputFile": "com.cinepass.android-mergeDebugResources-65:/values-v26/values-v26.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Dell\\.gradle\\caches\\9.2.1\\transforms\\40f5f4efbe8f60cc19a63f73a6f26cd4\\workspace\\transformed\\appcompat-1.6.1\\res\\values-v26\\values-v26.xml",
+                    "source": "C:\\Users\\Dell\\AppData\\Local\\Temp\\cursor-sandbox-cache\\d69bac2aacddc26883385f67a2c81012\\gradle\\caches\\9.2.1\\transforms\\4f3c638f0623a621f15429fe3b396aed\\workspace\\transformed\\appcompat-1.6.1\\res\\values-v26\\values-v26.xml",
                     "from": {
                         "startLines": "2,3,4,8,12,16",
                         "startColumns": "4,4,4,4,4,4",

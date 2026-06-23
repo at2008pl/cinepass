@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.cinepass.android-mergeDebugResources-71:/values-w600dp-land-v13/values-w600dp-land-v13.xml",
+            "outputFile": "com.cinepass.android-mergeDebugResources-65:/values-w600dp-land-v13/values-w600dp-land-v13.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Dell\\.gradle\\caches\\9.2.1\\transforms\\22dfbb11ed8a7382a2a2b30f973aed7d\\workspace\\transformed\\material-1.11.0\\res\\values-w600dp-land-v13\\values-w600dp-land-v13.xml",
+                    "source": "C:\\Users\\Dell\\AppData\\Local\\Temp\\cursor-sandbox-cache\\d69bac2aacddc26883385f67a2c81012\\gradle\\caches\\9.2.1\\transforms\\301903c534807f411784e281144dcea8\\workspace\\transformed\\material-1.11.0\\res\\values-w600dp-land-v13\\values-w600dp-land-v13.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

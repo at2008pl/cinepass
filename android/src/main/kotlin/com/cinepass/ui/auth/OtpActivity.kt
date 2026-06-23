@@ -40,7 +40,7 @@ class OtpActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val response = ApiClient.apiService.verifyOtp(VerifyOtpRequest(phone, code))
-                if (response.isSuccessful && response.body()?.success == true) {
+                if (response.isSuccessful && response.body() != null) {
                     toast("Phone verified! ✅")
                     // startActivityAndClear<HomeActivity>()
                 } else {
