@@ -1,4 +1,4 @@
-// !$*UTF8*$!
+build x// !$*UTF8*$!
 {
 	archiveVersion = 1;
 	classes = {

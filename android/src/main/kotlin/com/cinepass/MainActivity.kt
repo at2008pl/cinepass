@@ -12,8 +12,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.cinepass.data.preferences.ReferralPreferences
@@ -126,13 +124,4 @@ class MainActivity : ComponentActivity() {
 
         return null
     }
-}
-
-@Composable
-fun Greeting(name: String) {
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
 }
