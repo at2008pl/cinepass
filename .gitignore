@@ -13,6 +13,7 @@
 .cxx
 local.properties
 backend.zip
+ios/Configuration/Config.local.xcconfig
 
 # Gradle / Android build outputs (all modules)
 build/
