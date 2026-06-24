@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const pool = require('../db/pool');
 const { adminAuth } = require('../middleware/auth');
+const { normalizeFeedRow, normalizeFeedRows } = require('../utils/mediaUrl');
 
 router.use(adminAuth);
 
@@ -37,7 +38,7 @@ router.get('/', async (req, res) => {
         if (m) r.thumbnail_url = `https://img.youtube.com/vi/${m[1]}/hqdefault.jpg`;
       }
     });
-    res.json({ data: rows });
+    res.json({ data: normalizeFeedRows(rows) });
   } catch (err) {
     res.status(500).json({ error: { code: 'SERVER_ERROR', message: err.message } });
   }
@@ -54,7 +55,7 @@ router.post('/', async (req, res) => {
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
       [layout || 'card', title, subtitle, content_type || 'image', body, link_url, media_url, thumbnail_url, status || 'draft', req.admin.id]
     );
-    res.status(201).json(rows[0]);
+    res.status(201).json(normalizeFeedRow(rows[0]));
   } catch (err) {
     res.status(500).json({ error: { code: 'SERVER_ERROR', message: err.message } });
   }
@@ -70,7 +71,7 @@ router.put('/:id', async (req, res) => {
       [layout, title, subtitle, content_type, body, link_url, media_url, thumbnail_url, status, req.params.id]
     );
     if (!rows.length) return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Post not found' } });
-    res.json(rows[0]);
+    res.json(normalizeFeedRow(rows[0]));
   } catch (err) {
     res.status(500).json({ error: { code: 'SERVER_ERROR', message: err.message } });
   }
@@ -93,7 +94,7 @@ router.patch('/:id/status', async (req, res) => {
     const { status } = req.body;
     const { rows } = await pool.query('UPDATE feed_posts SET status=$1 WHERE id=$2 RETURNING *', [status, req.params.id]);
     if (!rows.length) return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Post not found' } });
-    res.json(rows[0]);
+    res.json(normalizeFeedRow(rows[0]));
   } catch (err) {
     res.status(500).json({ error: { code: 'SERVER_ERROR', message: err.message } });
   }

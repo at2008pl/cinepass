@@ -6,6 +6,7 @@ import com.cinepass.data.api.ApiClient
 import com.cinepass.data.api.models.Rs3FeedPost
 import com.cinepass.data.api.models.Rs3Offer
 import com.cinepass.data.prefs.UserPrefs
+import com.cinepass.utils.withResolvedMedia
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,7 +40,7 @@ class HomeViewModel(
                 
                 // Load feed
                 val feedResponse = ApiClient.rs3Api.getFeed(page = 1, limit = 20)
-                val feedPosts = feedResponse.body()?.data ?: emptyList()
+                val feedPosts = feedResponse.body()?.data?.map { it.withResolvedMedia() } ?: emptyList()
                 
                 // Load offers for home page
                 val offersResponse = ApiClient.rs3Api.getOffers(token = "Bearer $token", page = "home")
@@ -65,7 +66,7 @@ class HomeViewModel(
             _uiState.value = _uiState.value.copy(refreshing = true)
             try {
                 val feedResponse = ApiClient.rs3Api.getFeed(page = 1, limit = 20)
-                val feedPosts = feedResponse.body()?.data ?: emptyList()
+                val feedPosts = feedResponse.body()?.data?.map { it.withResolvedMedia() } ?: emptyList()
                 
                 _uiState.value = _uiState.value.copy(
                     refreshing = false,

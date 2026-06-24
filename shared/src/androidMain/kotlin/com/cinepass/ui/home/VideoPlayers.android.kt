@@ -32,6 +32,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
+import com.cinepass.utils.resolveMediaUrl
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
@@ -43,9 +44,10 @@ private fun String.encodeSpaces() = replace(" ", "%20")
 @Composable
 actual fun LoopingVideoPlayer(url: String, modifier: Modifier) {
     val context = LocalContext.current
-    val exoPlayer = remember(url) {
+    val resolvedUrl = remember(url) { resolveMediaUrl(url) ?: url }
+    val exoPlayer = remember(resolvedUrl) {
         ExoPlayer.Builder(context).build().apply {
-            val item = MediaItem.fromUri(Uri.parse(url.encodeSpaces()))
+            val item = MediaItem.fromUri(Uri.parse(resolvedUrl.encodeSpaces()))
             setMediaItem(item)
             repeatMode = Player.REPEAT_MODE_ONE
             volume = 0f

@@ -2,6 +2,7 @@ const router = require('express').Router();
 const multer = require('multer');
 const path = require('path');
 const { adminAuth } = require('../middleware/auth');
+const { mediaBaseUrl } = require('../utils/mediaUrl');
 
 const storage = multer.diskStorage({
   destination: 'uploads/',
@@ -20,8 +21,7 @@ router.post('/', upload.single('file'), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'No file uploaded' } });
     }
-    const host = process.env.MEDIA_BASE_URL || `${req.protocol}://${req.get('host')}`;
-    const url = `${host}/uploads/${req.file.filename}`;
+    const url = `${mediaBaseUrl()}/uploads/${req.file.filename}`;
     res.json({ url });
   } catch (err) {
     res.status(500).json({ error: { code: 'SERVER_ERROR', message: err.message } });

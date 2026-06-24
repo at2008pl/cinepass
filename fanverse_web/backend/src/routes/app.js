@@ -5,6 +5,7 @@
 const router = require('express').Router();
 const pool = require('../db/pool');
 const { appAuth } = require('../middleware/auth');
+const { normalizeFeedRows } = require('../utils/mediaUrl');
 
 // ── GET /app/offers?page=referral&user_id=1 ────────────
 router.get('/offers', appAuth, async (req, res) => {
@@ -134,7 +135,7 @@ router.get('/feed', async (req, res) => {
         if (m) r.thumbnail_url = `https://img.youtube.com/vi/${m[1]}/hqdefault.jpg`;
       }
     });
-    res.json({ data: rows });
+    res.json({ data: normalizeFeedRows(rows) });
   } catch (err) {
     res.status(500).json({ error: { code: 'SERVER_ERROR', message: err.message } });
   }
