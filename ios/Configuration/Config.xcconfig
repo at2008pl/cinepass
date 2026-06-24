@@ -1,4 +1,6 @@
-// Set your Apple Developer Team ID (Xcode → Signing & Capabilities) for device builds.
+#include? "Config.local.xcconfig"
+
+// Set your Apple Developer Team ID in Config.local.xcconfig (see Config.local.xcconfig.example).
 TEAM_ID=
 
 PRODUCT_NAME=Cinepass
