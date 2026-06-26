@@ -44,7 +44,6 @@ import androidx.compose.runtime.remember
 import com.cinepass.data.prefs.UserPrefs
 import com.cinepass.ui.components.AppNavItem
 import com.cinepass.ui.components.AppNavigationBar
-import com.cinepass.ui.components.AppNavigationBarItem
 
 /* ═══════════════════════════════════════════════════════════════════════════
    AppNavigation — Complete App Navigation with Bottom Navigation
@@ -256,8 +255,14 @@ private fun AppBottomNavigation(
     AppNavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
         items.forEach { item ->
             val isSelected = navBackStackEntry?.destination?.hierarchy?.any { it.route == item.route } == true
-            AppNavigationBarItem(
-                item = item,
+            NavigationBarItem(
+                icon = {
+                    Icon(
+                        imageVector = item.icon,
+                        contentDescription = item.label,
+                    )
+                },
+                label = { Text(item.label) },
                 selected = isSelected,
                 onClick = {
                     navController.navigate(item.route) {

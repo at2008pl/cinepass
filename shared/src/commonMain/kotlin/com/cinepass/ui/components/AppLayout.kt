@@ -11,10 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarDefaults
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -53,7 +52,7 @@ fun ScreenTopBar(
 fun AppNavigationBar(
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.surface,
-    content: @Composable () -> Unit,
+    content: @Composable RowScope.() -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -77,20 +76,3 @@ data class AppNavItem(
     val icon: ImageVector,
     val label: String,
 )
-
-@Composable
-fun AppNavigationBarItem(
-    item: AppNavItem,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
-    NavigationBarItem(
-        icon = { androidx.compose.material3.Icon(item.icon, contentDescription = item.label) },
-        label = { androidx.compose.material3.Text(item.label) },
-        selected = selected,
-        onClick = onClick,
-        colors = NavigationBarDefaults.colors(
-            indicatorColor = MaterialTheme.colorScheme.primaryContainer,
-        ),
-    )
-}
