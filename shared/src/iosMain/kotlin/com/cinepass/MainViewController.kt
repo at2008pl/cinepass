@@ -1,5 +1,8 @@
 package com.cinepass
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.ComposeUIViewController
 import com.cinepass.data.preferences.ReferralPreferences
 import com.cinepass.di.initKoin
@@ -25,7 +28,9 @@ fun MainViewController(): UIViewController {
     }
     return ComposeUIViewController {
         CinepassTheme {
-            AppNavigation()
+            Box(modifier = Modifier.fillMaxSize()) {
+                AppNavigation()
+            }
         }
     }
 }

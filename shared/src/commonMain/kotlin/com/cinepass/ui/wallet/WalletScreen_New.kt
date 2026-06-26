@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cinepass.data.api.models.Rs3CoinTransaction
 import com.cinepass.data.api.models.Rs3Offer
+import com.cinepass.ui.components.ScreenTopBar
 
 private val WGold   = Color(0xFFC9973A)
 private val WGold3  = Color(0xFFF5D78E)
@@ -47,10 +48,7 @@ fun WalletScreen_New(
 
     Column(modifier = Modifier.fillMaxSize().background(WSurface)) {
         // White header
-        Column(
-            modifier = Modifier.fillMaxWidth().background(WWhite)
-                .padding(horizontal = 24.dp).padding(top = 12.dp, bottom = 14.dp)
-        ) {
+        ScreenTopBar(backgroundColor = WWhite) {
             Text("Wallet", color = WInk2, fontSize = 21.sp, fontFamily = FontFamily.Serif)
         }
 
@@ -67,7 +65,7 @@ fun WalletScreen_New(
                 item {
                     Box(
                         modifier = Modifier
-                            .padding(horizontal = 16.dp).padding(top = 16.dp, bottom = 4.dp)
+                            .padding(top = 16.dp, bottom = 4.dp)
                             .fillMaxWidth().clip(RoundedCornerShape(16.dp))
                             .background(Brush.linearGradient(listOf(Color(0xFF2A1E08), Color(0xFF1A1206))))
                     ) {
@@ -113,7 +111,7 @@ fun WalletScreen_New(
                 // Tabs
                 item {
                     Row(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
+                        modifier = Modifier.padding(vertical = 14.dp)
                             .fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(WFaint)
                             .padding(3.dp),
                         horizontalArrangement = Arrangement.spacedBy(2.dp)
@@ -172,7 +170,7 @@ fun WalletScreen_New(
                     }
                     item {
                         // Earn more coins CTA
-                        Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(top = 8.dp)) {
+                        Box(Modifier.fillMaxWidth().padding(top = 8.dp)) {
                             Column(
                                 modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp))
                                     .background(WWhite).padding(18.dp)
@@ -220,7 +218,7 @@ private fun OfferCard(offer: Rs3Offer, userCoins: Int, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 5.dp)
+            .padding(vertical = 5.dp)
             .clip(RoundedCornerShape(14.dp))
             .background(WWhite)
             .clickable(enabled = !offer.claimed) { onClick() }
@@ -268,7 +266,7 @@ private fun OfferCard(offer: Rs3Offer, userCoins: Int, onClick: () -> Unit) {
 private fun TxnRow(txn: Rs3CoinTransaction) {
     val isEarn = txn.coins > 0
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+        modifier = Modifier.fillMaxWidth()
             .padding(vertical = 1.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -297,7 +295,7 @@ private fun TxnRow(txn: Rs3CoinTransaction) {
         )
     }
     Divider(
-        modifier = Modifier.padding(horizontal = 16.dp),
+        modifier = Modifier,
         thickness = 0.5.dp,
         color = Color(0xFFEDE8DC)
     )

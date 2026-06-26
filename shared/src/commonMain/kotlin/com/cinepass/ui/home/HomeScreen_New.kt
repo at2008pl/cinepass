@@ -35,6 +35,8 @@ import coil3.compose.AsyncImage
 import com.cinepass.data.api.models.Rs3FeedPost
 import com.cinepass.data.api.models.Rs3Offer
 import com.cinepass.data.prefs.UserPrefs
+import com.cinepass.ui.components.AppLayout
+import com.cinepass.ui.components.ScreenTopBar
 
 // ━━ RS³ Design Tokens ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 private val HGold     = Color(0xFFC9973A)
@@ -85,13 +87,7 @@ fun HomeScreen_New(
     Box(modifier = Modifier.fillMaxSize().background(HSurface)) {
         Column(modifier = Modifier.fillMaxSize()) {
             // ── Top header ──────────────────────────────────────────────────
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(HWhite)
-                    .padding(horizontal = 24.dp)
-                    .padding(top = 12.dp, bottom = 14.dp)
-            ) {
+            ScreenTopBar(backgroundColor = HWhite) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -140,7 +136,7 @@ fun HomeScreen_New(
                         item {
                             Text("Limited Offers", color = HInk2, fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp))
+                                modifier = Modifier.padding(horizontal = AppLayout.TextInset, vertical = 10.dp))
                         }
                         items(uiState.offers) { offer ->
                             OfferRow(offer = offer, onClaim = { viewModel.claimOffer(it) })
@@ -257,13 +253,12 @@ private fun ReelCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .padding(vertical = 6.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(420.dp)
-                .clip(RoundedCornerShape(20.dp))
                 .background(Color(0xFF0A0A0A))
         ) {
             when {
@@ -335,7 +330,7 @@ private fun BannerCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 8.dp)
+            .padding(vertical = 8.dp)
             .height(320.dp)
             .border(1.dp, HGold.copy(alpha = 0.35f), RoundedCornerShape(20.dp))
             .clip(RoundedCornerShape(20.dp))
@@ -409,7 +404,7 @@ private fun ContentCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .padding(vertical = 6.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(HWhite)
     ) {
@@ -493,9 +488,7 @@ private fun FeedCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 5.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .border(1.dp, HFaint, RoundedCornerShape(14.dp))
+            .padding(vertical = 5.dp)
             .background(HWhite)
     ) {
         // Top gold accent stripe
@@ -538,7 +531,7 @@ private fun TextUpdateCard(post: Rs3FeedPost) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .padding(vertical = 6.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFFBF4E3))
             .border(1.dp, HGold.copy(alpha = 0.25f), RoundedCornerShape(16.dp))
@@ -590,7 +583,7 @@ private fun OfferRow(offer: Rs3Offer, onClaim: (Int) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 5.dp)
+            .padding(vertical = 5.dp)
             .clip(RoundedCornerShape(14.dp))
             .background(HWhite)
     ) {

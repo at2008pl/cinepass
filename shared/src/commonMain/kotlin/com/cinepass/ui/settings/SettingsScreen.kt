@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cinepass.ui.components.AppLayout
 
 private val SGold    = Color(0xFFC9973A)
 private val SInk2    = Color(0xFF1E1A10)
@@ -44,7 +45,8 @@ fun SettingsScreen(onBack: () -> Unit = {}) {
                     start = Offset(0f, 0f),
                     end   = Offset(400f, 200f)
                 ))
-                .padding(horizontal = 20.dp, vertical = 18.dp)
+                .statusBarsPadding()
+                .padding(horizontal = AppLayout.TextInset, vertical = 18.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(
@@ -94,7 +96,7 @@ private fun SettingsSectionLabel(title: String) {
     Text(
         title, color = SMuted,
         fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp,
-        modifier = Modifier.padding(horizontal = 20.dp).padding(top = 22.dp, bottom = 6.dp)
+        modifier = Modifier.padding(horizontal = AppLayout.TextInset).padding(top = 22.dp, bottom = 6.dp)
     )
 }
 
@@ -104,7 +106,7 @@ private fun SettingsToggleRow(
     checked: Boolean, onToggle: (Boolean) -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
             .clip(RoundedCornerShape(12.dp)).background(SWhite)
             .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -137,7 +139,7 @@ private fun SettingsToggleRow(
 @Composable
 private fun SettingsLinkRow(icon: ImageVector, label: String, sub: String) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
             .clip(RoundedCornerShape(12.dp)).background(SWhite)
             .clickable { }
             .padding(horizontal = 14.dp, vertical = 14.dp),

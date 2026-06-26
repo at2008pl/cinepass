@@ -1,6 +1,11 @@
 package com.cinepass.navigation
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
@@ -74,6 +79,8 @@ fun AppNavigation(
     startDestination: String = Routes.SPLASH
 ) {
     Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             // Show bottom nav only for main app screens (not for auth screens)
             val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -90,7 +97,9 @@ fun AppNavigation(
         NavHost(
             navController = navController,
             startDestination = startDestination,
-            modifier = Modifier.padding(padding)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
         ) {
             // Auth Screens
             composable(Routes.SPLASH) {
@@ -235,7 +244,11 @@ private fun AppBottomNavigation(
     val items = BottomNavItem.items()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
-    NavigationBar {
+    NavigationBar(
+        modifier = Modifier
+            .fillMaxWidth()
+            .windowInsetsPadding(WindowInsets.navigationBars),
+    ) {
         items.forEach { item ->
             val isSelected = navBackStackEntry?.destination?.hierarchy?.any { it.route == item.route } == true
 
