@@ -12,7 +12,7 @@ struct ComposeView: UIViewControllerRepresentable {
 struct ContentView: View {
     var body: some View {
         ComposeView()
-            .ignoresSafeArea(.container, edges: .all)
+            .ignoresSafeArea(.all)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

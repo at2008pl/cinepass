@@ -5,20 +5,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -42,6 +42,9 @@ import com.cinepass.ui.settings.SettingsScreen
 import com.cinepass.ui.wallet.WalletScreen_New
 import androidx.compose.runtime.remember
 import com.cinepass.data.prefs.UserPrefs
+import com.cinepass.ui.components.AppNavItem
+import com.cinepass.ui.components.AppNavigationBar
+import com.cinepass.ui.components.AppNavigationBarItem
 
 /* ═══════════════════════════════════════════════════════════════════════════
    AppNavigation — Complete App Navigation with Bottom Navigation
@@ -80,6 +83,7 @@ fun AppNavigation(
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        containerColor = Color.Transparent,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             // Show bottom nav only for main app screens (not for auth screens)
@@ -239,27 +243,21 @@ fun AppNavigation(
 @Composable
 private fun AppBottomNavigation(
     navController: NavHostController,
-    currentRoute: String?
+    currentRoute: String?,
 ) {
-    val items = BottomNavItem.items()
+    val items = listOf(
+        AppNavItem(Routes.HOME, Icons.Default.Home, "Home"),
+        AppNavItem(Routes.WALLET, Icons.Default.Wallet, "Wallet"),
+        AppNavItem(Routes.REFERRAL, Icons.Default.Share, "Referral"),
+        AppNavItem(Routes.PROFILE, Icons.Default.Person, "Profile"),
+    )
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
-    NavigationBar(
-        modifier = Modifier
-            .fillMaxWidth()
-            .windowInsetsPadding(WindowInsets.navigationBars),
-    ) {
+    AppNavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
         items.forEach { item ->
             val isSelected = navBackStackEntry?.destination?.hierarchy?.any { it.route == item.route } == true
-
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        imageVector = item.icon,
-                        contentDescription = item.label
-                    )
-                },
-                label = { Text(item.label) },
+            AppNavigationBarItem(
+                item = item,
                 selected = isSelected,
                 onClick = {
                     navController.navigate(item.route) {
@@ -269,7 +267,7 @@ private fun AppBottomNavigation(
                         launchSingleTop = true
                         restoreState = true
                     }
-                }
+                },
             )
         }
     }

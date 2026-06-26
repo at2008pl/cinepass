@@ -3,20 +3,27 @@ package com.cinepass.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 object AppLayout {
-    /** Horizontal inset for text headers and readable body copy. */
-    val TextInset: Dp = 16.dp
-
-    /** Vertical spacing between stacked feed/list blocks. */
+    val TextInset: Dp = 0.dp
     val BlockSpacing: Dp = 8.dp
 }
 
@@ -29,10 +36,61 @@ fun ScreenTopBar(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(backgroundColor)
-            .statusBarsPadding()
-            .padding(horizontal = AppLayout.TextInset)
-            .padding(top = 12.dp, bottom = 14.dp),
-        content = content,
+            .background(backgroundColor),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .padding(horizontal = 16.dp)
+                .padding(top = 8.dp, bottom = 12.dp),
+            content = content,
+        )
+    }
+}
+
+@Composable
+fun AppNavigationBar(
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.surface,
+    content: @Composable () -> Unit,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(containerColor),
+    ) {
+        NavigationBar(
+            modifier = Modifier.fillMaxWidth(),
+            containerColor = containerColor,
+            tonalElevation = 0.dp,
+            windowInsets = WindowInsets(0, 0, 0, 0),
+        ) {
+            content()
+        }
+        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
+    }
+}
+
+data class AppNavItem(
+    val route: String,
+    val icon: ImageVector,
+    val label: String,
+)
+
+@Composable
+fun AppNavigationBarItem(
+    item: AppNavItem,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    NavigationBarItem(
+        icon = { androidx.compose.material3.Icon(item.icon, contentDescription = item.label) },
+        label = { androidx.compose.material3.Text(item.label) },
+        selected = selected,
+        onClick = onClick,
+        colors = NavigationBarDefaults.colors(
+            indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+        ),
     )
 }

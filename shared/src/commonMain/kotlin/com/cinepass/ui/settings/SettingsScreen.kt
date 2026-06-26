@@ -3,6 +3,9 @@ package com.cinepass.ui.settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -39,16 +42,24 @@ fun SettingsScreen(onBack: () -> Unit = {}) {
     Column(modifier = Modifier.fillMaxSize().background(SSurface)) {
         // Header
         Box(
-            modifier = Modifier.fillMaxWidth()
-                .background(Brush.linearGradient(
-                    listOf(Color(0xFF0E0A06), Color(0xFF1E1408)),
-                    start = Offset(0f, 0f),
-                    end   = Offset(400f, 200f)
-                ))
-                .statusBarsPadding()
-                .padding(horizontal = AppLayout.TextInset, vertical = 18.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.linearGradient(
+                        listOf(Color(0xFF0E0A06), Color(0xFF1E1408)),
+                        start = Offset(0f, 0f),
+                        end = Offset(400f, 200f),
+                    ),
+                ),
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .padding(horizontal = 16.dp, vertical = 18.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
                 Box(
                     modifier = Modifier.size(34.dp).clip(RoundedCornerShape(8.dp))
                         .background(Color.White.copy(alpha = 0.06f))

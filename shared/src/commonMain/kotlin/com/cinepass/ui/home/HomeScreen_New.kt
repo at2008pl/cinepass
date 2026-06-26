@@ -35,7 +35,6 @@ import coil3.compose.AsyncImage
 import com.cinepass.data.api.models.Rs3FeedPost
 import com.cinepass.data.api.models.Rs3Offer
 import com.cinepass.data.prefs.UserPrefs
-import com.cinepass.ui.components.AppLayout
 import com.cinepass.ui.components.ScreenTopBar
 
 // ━━ RS³ Design Tokens ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -128,7 +127,7 @@ fun HomeScreen_New(
                     CircularProgressIndicator(color = HGold)
                 }
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 80.dp)) {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(uiState.feedPosts) { post ->
                         FeedPostItem(post = post, onYouTubeClick = { id -> ytVideoId = id })
                     }
@@ -136,7 +135,7 @@ fun HomeScreen_New(
                         item {
                             Text("Limited Offers", color = HInk2, fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(horizontal = AppLayout.TextInset, vertical = 10.dp))
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp))
                         }
                         items(uiState.offers) { offer ->
                             OfferRow(offer = offer, onClaim = { viewModel.claimOffer(it) })

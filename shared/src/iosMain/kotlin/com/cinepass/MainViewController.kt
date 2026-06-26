@@ -13,6 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import platform.UIKit.UIRectEdgeAll
 import platform.UIKit.UIViewController
 
 private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -32,5 +33,8 @@ fun MainViewController(): UIViewController {
                 AppNavigation()
             }
         }
+    }.apply {
+        edgesForExtendedLayout = UIRectEdgeAll
+        extendedLayoutIncludesOpaqueBars = true
     }
 }

@@ -2,7 +2,9 @@
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -366,8 +368,9 @@ private fun ProfileHeader(profile: Rs3Profile?, onLogout: () -> Unit) {
     ) {
         Column(
             modifier = Modifier
-                .statusBarsPadding()
-                .padding(horizontal = AppLayout.TextInset, vertical = 20.dp)
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .padding(horizontal = 16.dp, vertical = 20.dp)
                 .padding(bottom = 8.dp)
         ) {
             Row(
