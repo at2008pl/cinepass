@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cinepass.ui.components.AppLayout
 
 private val T_Gold    = Color(0xFFC9973A)
 private val T_GoldL   = Color(0xFFF5D78E)
@@ -108,7 +109,7 @@ fun ReferralTreeScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 16.dp),
+                            .padding(vertical = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         StatCard("Members", "${uiState.totalNodes - 1}", Modifier.weight(1f))
@@ -121,7 +122,7 @@ fun ReferralTreeScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
+                                .padding(horizontal = AppLayout.TextInset)
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(T_Card)
                                 .padding(14.dp),
@@ -150,13 +151,13 @@ fun ReferralTreeScreen(
                     }
 
                     // Visual tree
-                    Text("Network Tree", modifier = Modifier.padding(horizontal = 16.dp),
+                    Text("Network Tree", modifier = Modifier.padding(horizontal = AppLayout.TextInset),
                         fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = T_Muted,
                         letterSpacing = 0.5.sp)
                     Spacer(Modifier.height(10.dp))
 
                     Column(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         // Root node (YOU)

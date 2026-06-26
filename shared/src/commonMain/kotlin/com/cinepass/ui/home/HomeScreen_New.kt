@@ -36,6 +36,7 @@ import com.cinepass.data.api.models.Rs3FeedPost
 import com.cinepass.utils.shouldPlayInlineVideo
 import com.cinepass.data.api.models.Rs3Offer
 import com.cinepass.data.prefs.UserPrefs
+import com.cinepass.ui.components.ScreenTopBar
 
 // ━━ RS³ Design Tokens ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 private val HGold     = Color(0xFFC9973A)
@@ -90,13 +91,7 @@ fun HomeScreen_New(
     Box(modifier = Modifier.fillMaxSize().background(HSurface)) {
         Column(modifier = Modifier.fillMaxSize()) {
             // ── Top header ──────────────────────────────────────────────────
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(HWhite)
-                    .padding(horizontal = 24.dp)
-                    .padding(top = 12.dp, bottom = 14.dp)
-            ) {
+            ScreenTopBar(backgroundColor = HWhite) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -137,7 +132,7 @@ fun HomeScreen_New(
                     CircularProgressIndicator(color = HGold)
                 }
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 80.dp)) {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(uiState.feedPosts) { post ->
                         FeedPostItem(
                             post = post,
@@ -271,13 +266,12 @@ private fun ReelCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .padding(vertical = 6.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(420.dp)
-                .clip(RoundedCornerShape(20.dp))
                 .background(Color(0xFF0A0A0A))
                 .clickable(enabled = canOpenFeedMediaFullscreen(post)) {
                     openFeedMediaFullscreen(post, onYouTubeClick, onOpenFullscreen)
@@ -347,7 +341,7 @@ private fun BannerCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 8.dp)
+            .padding(vertical = 8.dp)
             .height(320.dp)
             .border(1.dp, HGold.copy(alpha = 0.35f), RoundedCornerShape(20.dp))
             .clip(RoundedCornerShape(20.dp))
@@ -423,7 +417,7 @@ private fun ContentCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .padding(vertical = 6.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(HWhite)
     ) {
@@ -506,9 +500,7 @@ private fun FeedCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 5.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .border(1.dp, HFaint, RoundedCornerShape(14.dp))
+            .padding(vertical = 5.dp)
             .background(HWhite)
     ) {
         // Top gold accent stripe
@@ -544,7 +536,7 @@ private fun TextUpdateCard(post: Rs3FeedPost) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .padding(vertical = 6.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFFBF4E3))
             .border(1.dp, HGold.copy(alpha = 0.25f), RoundedCornerShape(16.dp))
@@ -596,7 +588,7 @@ private fun OfferRow(offer: Rs3Offer, onClaim: (Int) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 5.dp)
+            .padding(vertical = 5.dp)
             .clip(RoundedCornerShape(14.dp))
             .background(HWhite)
     ) {

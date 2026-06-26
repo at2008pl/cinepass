@@ -3,6 +3,9 @@
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -26,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cinepass.data.api.models.Rs3Profile
 import com.cinepass.data.api.models.Rs3Redemption
+import com.cinepass.ui.components.AppLayout
 import com.cinepass.utils.PlatformActions
 
 private val PGold   = Color(0xFFC9973A)
@@ -227,8 +231,10 @@ fun ProfileScreen_New(
                         "Ambassador"                              to "Status"
                     )
                     Row(
-                        modifier = Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)
-                            .fillMaxWidth().clip(RoundedCornerShape(14.dp))
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(0.dp))
                             .background(PFaint),
                         horizontalArrangement = Arrangement.spacedBy(1.dp)
                     ) {
@@ -264,7 +270,7 @@ fun ProfileScreen_New(
                         Triple(Icons.Default.Settings,   "Settings",           "Notifications, account")    to "settings",
                         Triple(Icons.Default.Logout,     "Sign Out",           "")                          to "logout"
                     )
-                    Column(modifier = Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)) {
+                    Column(modifier = Modifier.padding(horizontal = AppLayout.TextInset).padding(top = 16.dp)) {
                         menuItems.forEachIndexed { i, (item, action) ->
                             val (icon, label, sub) = item
                             val isDanger = action == "logout"
@@ -361,8 +367,13 @@ private fun ProfileHeader(profile: Rs3Profile?, onLogout: () -> Unit) {
                 start = androidx.compose.ui.geometry.Offset(0f, 0f),
                 end = androidx.compose.ui.geometry.Offset(400f, 300f)))
     ) {
-        Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 20.dp)
-            .padding(bottom = 8.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .padding(horizontal = 16.dp, vertical = 20.dp)
+                .padding(bottom = 8.dp)
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp)

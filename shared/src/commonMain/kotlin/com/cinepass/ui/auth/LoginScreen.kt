@@ -88,7 +88,7 @@ fun LoginScreen(
                 )
                 .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
         ) {
-            Column(modifier = Modifier.padding(horizontal = 28.dp, vertical = 32.dp)) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 32.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
@@ -137,7 +137,7 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 28.dp)
+                .padding(horizontal = 16.dp)
                 .padding(top = 32.dp, bottom = 40.dp)
         ) {
             Row(

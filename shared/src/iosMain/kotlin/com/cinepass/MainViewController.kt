@@ -1,5 +1,8 @@
 package com.cinepass
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.ComposeUIViewController
 import com.cinepass.data.preferences.ReferralPreferences
 import com.cinepass.di.initKoin
@@ -10,6 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import platform.UIKit.UIRectEdgeAll
 import platform.UIKit.UIViewController
 
 private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -25,7 +29,12 @@ fun MainViewController(): UIViewController {
     }
     return ComposeUIViewController {
         CinepassTheme {
-            AppNavigation()
+            Box(modifier = Modifier.fillMaxSize()) {
+                AppNavigation()
+            }
         }
+    }.apply {
+        edgesForExtendedLayout = UIRectEdgeAll
+        extendedLayoutIncludesOpaqueBars = true
     }
 }

@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cinepass.utils.PlatformActions
+import com.cinepass.ui.components.AppLayout
+import com.cinepass.ui.components.ScreenTopBar
 
 private val RGold     = Color(0xFFC9973A)
 private val RGold3    = Color(0xFFF5D78E)
@@ -45,10 +47,7 @@ fun ReferralScreen_New(
             .background(RSurface)
     ) {
         // ── White header ─────────────────────────────────────────────────
-        Column(
-            modifier = Modifier.fillMaxWidth().background(RWhite)
-                .padding(horizontal = 24.dp).padding(top = 12.dp, bottom = 14.dp)
-        ) {
+        ScreenTopBar(backgroundColor = RWhite) {
             Text("Refer & Earn", color = RInk2, fontSize = 21.sp, fontFamily = FontFamily.Serif)
             Text("Share your code. Earn coins at every level.", color = RMuted, fontSize = 12.sp)
         }
@@ -60,7 +59,7 @@ fun ReferralScreen_New(
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+                contentPadding = PaddingValues(vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 // ── Gold referral code card ───────────────────────────────

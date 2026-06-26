@@ -365,7 +365,7 @@ fun RegisterScreenContent(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 16.dp)
                 .padding(top = 20.dp, bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -416,7 +416,7 @@ fun RegisterScreenContent(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(scrollState)
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(4.dp))
@@ -677,7 +677,7 @@ fun RegisterScreenContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(T_Bg)
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 16.dp)
                 .padding(top = 12.dp, bottom = 20.dp)
         ) {
             // Error message
