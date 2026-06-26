@@ -29,8 +29,15 @@ function resolveMediaUrl(url) {
 
 function normalizeFeedRow(row) {
   if (!row) return row;
+  const layout = row.layout;
+  let content_type = row.content_type;
+  // Reel layout always implies video — fixes posts saved with type "image" from admin defaults
+  if (layout === 'reel' && content_type !== 'video') {
+    content_type = 'video';
+  }
   return {
     ...row,
+    content_type,
     media_url: resolveMediaUrl(row.media_url),
     thumbnail_url: resolveMediaUrl(row.thumbnail_url),
   };

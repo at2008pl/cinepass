@@ -21,6 +21,9 @@ import coil3.compose.AsyncImage
 expect fun LoopingVideoPlayer(url: String, modifier: Modifier = Modifier)
 
 @Composable
+expect fun FullscreenVideoPlayer(url: String, modifier: Modifier = Modifier)
+
+@Composable
 expect fun YouTubeDialog(videoId: String, onDismiss: () -> Unit)
 
 @Composable

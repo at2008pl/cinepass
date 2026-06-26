@@ -68,6 +68,33 @@ actual fun LoopingVideoPlayer(url: String, modifier: Modifier) {
     )
 }
 
+@androidx.annotation.OptIn(UnstableApi::class)
+@Composable
+actual fun FullscreenVideoPlayer(url: String, modifier: Modifier) {
+    val context = LocalContext.current
+    val resolvedUrl = remember(url) { resolveMediaUrl(url) ?: url }
+    val exoPlayer = remember(resolvedUrl) {
+        ExoPlayer.Builder(context).build().apply {
+            val item = MediaItem.fromUri(Uri.parse(resolvedUrl.encodeSpaces()))
+            setMediaItem(item)
+            volume = 1f
+            prepare()
+            playWhenReady = true
+        }
+    }
+    DisposableEffect(exoPlayer) { onDispose { exoPlayer.release() } }
+    AndroidView(
+        factory = { ctx ->
+            PlayerView(ctx).apply {
+                player = exoPlayer
+                useController = true
+                resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+            }
+        },
+        modifier = modifier
+    )
+}
+
 @Composable
 actual fun YouTubeDialog(videoId: String, onDismiss: () -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current

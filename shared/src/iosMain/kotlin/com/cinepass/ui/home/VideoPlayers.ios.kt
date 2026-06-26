@@ -15,6 +15,7 @@ import com.cinepass.utils.resolveMediaUrl
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.awaitCancellation
 import platform.AVFoundation.*
+import platform.AVKit.AVPlayerViewController
 import platform.CoreMedia.CMTimeMake
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSURL
@@ -72,6 +73,44 @@ actual fun LoopingVideoPlayer(url: String, modifier: Modifier) {
             playerLayer.setFrame(rect)
             CATransaction.commit()
         }
+    )
+}
+
+@OptIn(ExperimentalForeignApi::class)
+@Composable
+actual fun FullscreenVideoPlayer(url: String, modifier: Modifier) {
+    val resolvedUrl = remember(url) { resolveMediaUrl(url) ?: url }
+    val player = remember { AVPlayer() }
+    val controller = remember {
+        AVPlayerViewController(null, null).apply {
+            this.player = player
+            showsPlaybackControls = true
+            videoGravity = AVLayerVideoGravityResizeAspect
+        }
+    }
+
+    LaunchedEffect(resolvedUrl) {
+        val nsUrl = NSURL(string = resolvedUrl) ?: return@LaunchedEffect
+        val asset = AVURLAsset(nsUrl, null)
+        val playerItem = AVPlayerItem(asset = asset)
+        player.replaceCurrentItemWithPlayerItem(item = playerItem)
+        player.muted = false
+        player.play()
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            player.pause()
+            player.replaceCurrentItemWithPlayerItem(null)
+        }
+    }
+
+    val factory = remember(controller) { { controller.view } }
+    UIKitView(
+        modifier = modifier,
+        background = Color.Black,
+        factory = factory,
+        onResize = { _, rect -> controller.view.setFrame(rect) },
     )
 }
 

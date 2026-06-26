@@ -33,6 +33,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.cinepass.data.api.models.Rs3FeedPost
+import com.cinepass.utils.shouldPlayInlineVideo
 import com.cinepass.data.api.models.Rs3Offer
 import com.cinepass.data.prefs.UserPrefs
 
@@ -77,9 +78,13 @@ fun HomeScreen_New(
 
     // YouTube dialog state
     var ytVideoId by remember { mutableStateOf<String?>(null) }
+    var fullscreenMedia by remember { mutableStateOf<FullscreenMedia?>(null) }
 
     if (ytVideoId != null) {
         YouTubeDialog(videoId = ytVideoId!!, onDismiss = { ytVideoId = null })
+    }
+    fullscreenMedia?.let { media ->
+        FullscreenMediaDialog(media = media, onDismiss = { fullscreenMedia = null })
     }
 
     Box(modifier = Modifier.fillMaxSize().background(HSurface)) {
@@ -134,7 +139,11 @@ fun HomeScreen_New(
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 80.dp)) {
                     items(uiState.feedPosts) { post ->
-                        FeedPostItem(post = post, onYouTubeClick = { id -> ytVideoId = id })
+                        FeedPostItem(
+                            post = post,
+                            onYouTubeClick = { id -> ytVideoId = id },
+                            onOpenFullscreen = { media -> fullscreenMedia = media },
+                        )
                     }
                     if (uiState.offers.isNotEmpty()) {
                         item {
@@ -161,15 +170,19 @@ fun HomeScreen_New(
 
 // ━━ Layout Dispatcher ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 @Composable
-private fun FeedPostItem(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
+private fun FeedPostItem(
+    post: Rs3FeedPost,
+    onYouTubeClick: (String) -> Unit,
+    onOpenFullscreen: (FullscreenMedia) -> Unit,
+) {
     when (post.layout.lowercase()) {
-        "hero"   -> HeroPostCard(post, onYouTubeClick)
-        "reel"   -> ReelCard(post, onYouTubeClick)
-        "banner" -> BannerCard(post, onYouTubeClick)
-        "card"   -> ContentCard(post, onYouTubeClick)
+        "hero"   -> HeroPostCard(post, onYouTubeClick, onOpenFullscreen)
+        "reel"   -> ReelCard(post, onYouTubeClick, onOpenFullscreen)
+        "banner" -> BannerCard(post, onYouTubeClick, onOpenFullscreen)
+        "card"   -> ContentCard(post, onYouTubeClick, onOpenFullscreen)
         "update" -> TextUpdateCard(post)
-        "grid2"  -> FeedCard(post, onYouTubeClick)
-        else     -> FeedCard(post, onYouTubeClick)
+        "grid2"  -> FeedCard(post, onYouTubeClick, onOpenFullscreen)
+        else     -> FeedCard(post, onYouTubeClick, onOpenFullscreen)
     }
 }
 
@@ -178,7 +191,11 @@ private fun FeedPostItem(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
 //  Distinctive: edge-to-edge (no horizontal padding), tall 260dp, strong gradient
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 @Composable
-private fun HeroPostCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
+private fun HeroPostCard(
+    post: Rs3FeedPost,
+    onYouTubeClick: (String) -> Unit,
+    onOpenFullscreen: (FullscreenMedia) -> Unit,
+) {
     val ytId = post.link?.let { extractYouTubeId(it) }
     Box(
         modifier = Modifier
@@ -186,22 +203,15 @@ private fun HeroPostCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
             .padding(horizontal = 0.dp)
             .padding(top = 0.dp, bottom = 8.dp)
             .height(260.dp)
+            .clickable(enabled = canOpenFeedMediaFullscreen(post)) {
+                openFeedMediaFullscreen(post, onYouTubeClick, onOpenFullscreen)
+            }
     ) {
-        when {
-            post.type == "video" && !post.mediaUrl.isNullOrEmpty() ->
-                LoopingVideoPlayer(url = post.mediaUrl!!, modifier = Modifier.fillMaxSize())
-            ytId != null ->
-                YoutubeThumb(ytId = ytId, onClick = { onYouTubeClick(ytId) }, modifier = Modifier.fillMaxSize(), thumbUrl = post.thumbnailUrl)
-            !post.mediaUrl.isNullOrEmpty() ->
-                AsyncImage(
-                    model = post.mediaUrl.encodeSpaces(),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            else ->
-                Box(modifier = Modifier.fillMaxSize()
-                    .background(Brush.linearGradient(listOf(Color(0xFF1A1008), Color(0xFF2A1E06)))))
+        if (post.shouldPlayInlineVideo() || ytId != null || !post.mediaUrl.isNullOrEmpty()) {
+            FeedMediaContent(post = post, modifier = Modifier.fillMaxSize())
+        } else {
+            Box(modifier = Modifier.fillMaxSize()
+                .background(Brush.linearGradient(listOf(Color(0xFF1A1008), Color(0xFF2A1E06)))))
         }
         // Strong dark gradient
         Box(modifier = Modifier.fillMaxSize()
@@ -252,7 +262,11 @@ private fun HeroPostCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
 //  Distinctive: dark bg, 9:16-ish ratio, muted-controls inline player
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 @Composable
-private fun ReelCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
+private fun ReelCard(
+    post: Rs3FeedPost,
+    onYouTubeClick: (String) -> Unit,
+    onOpenFullscreen: (FullscreenMedia) -> Unit,
+) {
     val ytId = post.link?.let { extractYouTubeId(it) }
     Column(
         modifier = Modifier
@@ -265,20 +279,14 @@ private fun ReelCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
                 .height(420.dp)
                 .clip(RoundedCornerShape(20.dp))
                 .background(Color(0xFF0A0A0A))
+                .clickable(enabled = canOpenFeedMediaFullscreen(post)) {
+                    openFeedMediaFullscreen(post, onYouTubeClick, onOpenFullscreen)
+                }
         ) {
-            when {
-                post.type == "video" && !post.mediaUrl.isNullOrEmpty() ->
-                    LoopingVideoPlayer(url = post.mediaUrl!!, modifier = Modifier.fillMaxSize())
-                ytId != null ->
-                    YoutubeThumb(ytId = ytId, onClick = { onYouTubeClick(ytId) }, modifier = Modifier.fillMaxSize(), thumbUrl = post.thumbnailUrl)
-                !post.mediaUrl.isNullOrEmpty() ->
-                    AsyncImage(
-                        model = post.mediaUrl!!.encodeSpaces(),
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                else -> Box(modifier = Modifier.fillMaxSize().background(Color(0xFF0A0A0A)))
+            if (post.shouldPlayInlineVideo() || ytId != null || !post.mediaUrl.isNullOrEmpty()) {
+                FeedMediaContent(post = post, modifier = Modifier.fillMaxSize())
+            } else {
+                Box(modifier = Modifier.fillMaxSize().background(Color(0xFF0A0A0A)))
             }
             // Bottom gradient
             Box(modifier = Modifier.fillMaxSize()
@@ -330,7 +338,11 @@ private fun ReelCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
 //  Distinctive: portrait 3:4 ratio, centred title, gold frame border
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 @Composable
-private fun BannerCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
+private fun BannerCard(
+    post: Rs3FeedPost,
+    onYouTubeClick: (String) -> Unit,
+    onOpenFullscreen: (FullscreenMedia) -> Unit,
+) {
     val ytId = post.link?.let { extractYouTubeId(it) }
     Box(
         modifier = Modifier
@@ -339,14 +351,12 @@ private fun BannerCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
             .height(320.dp)
             .border(1.dp, HGold.copy(alpha = 0.35f), RoundedCornerShape(20.dp))
             .clip(RoundedCornerShape(20.dp))
+            .clickable(enabled = canOpenFeedMediaFullscreen(post)) {
+                openFeedMediaFullscreen(post, onYouTubeClick, onOpenFullscreen)
+            }
     ) {
         if (!post.mediaUrl.isNullOrEmpty()) {
-            AsyncImage(
-                model = post.mediaUrl.encodeSpaces(),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
+            FeedMediaContent(post = post, modifier = Modifier.fillMaxSize())
         } else {
             Box(modifier = Modifier.fillMaxSize()
                 .background(Brush.linearGradient(listOf(Color(0xFF2A1E06), Color(0xFF0E0C08)))))
@@ -403,7 +413,11 @@ private fun BannerCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
 //  Distinctive: white bg, logo-style left stripe, structured info row
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 @Composable
-private fun ContentCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
+private fun ContentCard(
+    post: Rs3FeedPost,
+    onYouTubeClick: (String) -> Unit,
+    onOpenFullscreen: (FullscreenMedia) -> Unit,
+) {
     val ytId = post.link?.let { extractYouTubeId(it) }
     val uriHandler = LocalUriHandler.current
     Column(
@@ -415,20 +429,15 @@ private fun ContentCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
     ) {
         // Image area
         Box(modifier = Modifier.fillMaxWidth().height(180.dp)) {
-            when {
-                post.type == "video" && !post.mediaUrl.isNullOrEmpty() ->
-                    LoopingVideoPlayer(url = post.mediaUrl!!, modifier = Modifier.fillMaxSize())
-                ytId != null ->
-                    YoutubeThumb(ytId = ytId, onClick = { onYouTubeClick(ytId) }, modifier = Modifier.fillMaxSize(), thumbUrl = post.thumbnailUrl)
-                !post.mediaUrl.isNullOrEmpty() ->
-                    AsyncImage(
-                        model = post.mediaUrl.encodeSpaces(),
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                else ->
-                    Box(modifier = Modifier.fillMaxSize().background(HFaint))
+            if (post.shouldPlayInlineVideo() || ytId != null || !post.mediaUrl.isNullOrEmpty()) {
+                FeedMediaBox(
+                    post = post,
+                    modifier = Modifier.fillMaxSize(),
+                    onYouTubeClick = onYouTubeClick,
+                    onOpenFullscreen = onOpenFullscreen,
+                )
+            } else {
+                Box(modifier = Modifier.fillMaxSize().background(HFaint))
             }
             // Content type badge
             if (!post.type.isNullOrEmpty()) {
@@ -488,7 +497,11 @@ private fun ContentCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
 //  Distinctive: thin gold top border, smaller image 140dp, compact
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 @Composable
-private fun FeedCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
+private fun FeedCard(
+    post: Rs3FeedPost,
+    onYouTubeClick: (String) -> Unit,
+    onOpenFullscreen: (FullscreenMedia) -> Unit,
+) {
     val ytId = post.link?.let { extractYouTubeId(it) }
     Column(
         modifier = Modifier
@@ -502,20 +515,13 @@ private fun FeedCard(post: Rs3FeedPost, onYouTubeClick: (String) -> Unit) {
         Box(modifier = Modifier.fillMaxWidth().height(3.dp).background(
             Brush.horizontalGradient(listOf(HGold, HGoldPale, HFaint))
         ))
-        when {
-            post.type == "video" && !post.mediaUrl.isNullOrEmpty() ->
-                LoopingVideoPlayer(url = post.mediaUrl!!, modifier = Modifier.fillMaxWidth().height(140.dp))
-            ytId != null ->
-                YoutubeThumb(ytId = ytId, onClick = { onYouTubeClick(ytId) },
-                    modifier = Modifier.fillMaxWidth().height(140.dp), thumbUrl = post.thumbnailUrl)
-            !post.mediaUrl.isNullOrEmpty() ->
-                AsyncImage(
-                    model = post.mediaUrl.encodeSpaces(),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxWidth().height(140.dp),
-                    contentScale = ContentScale.Crop
-                )
-            else -> {}
+        if (post.shouldPlayInlineVideo() || ytId != null || !post.mediaUrl.isNullOrEmpty()) {
+            FeedMediaBox(
+                post = post,
+                modifier = Modifier.fillMaxWidth().height(140.dp),
+                onYouTubeClick = onYouTubeClick,
+                onOpenFullscreen = onOpenFullscreen,
+            )
         }
         Column(modifier = Modifier.padding(12.dp)) {
             Text(post.title ?: "", color = HInk2, fontSize = 15.sp, fontFamily = FontFamily.Serif,

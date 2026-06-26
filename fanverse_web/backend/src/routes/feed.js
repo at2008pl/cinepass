@@ -50,10 +50,13 @@ router.post('/', async (req, res) => {
     const { layout, title, subtitle, content_type, body, link_url, media_url, thumbnail_url, status } = req.body;
     if (!title) return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Title is required', field: 'title' } });
 
+    const resolvedLayout = layout || 'card';
+    const resolvedType = resolvedLayout === 'reel' ? 'video' : (content_type || 'image');
+
     const { rows } = await pool.query(
       `INSERT INTO feed_posts (layout, title, subtitle, content_type, body, link_url, media_url, thumbnail_url, status, author_id)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
-      [layout || 'card', title, subtitle, content_type || 'image', body, link_url, media_url, thumbnail_url, status || 'draft', req.admin.id]
+      [resolvedLayout, title, subtitle, resolvedType, body, link_url, media_url, thumbnail_url, status || 'draft', req.admin.id]
     );
     res.status(201).json(normalizeFeedRow(rows[0]));
   } catch (err) {
@@ -65,10 +68,11 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { layout, title, subtitle, content_type, body, link_url, media_url, thumbnail_url, status } = req.body;
+    const resolvedType = layout === 'reel' ? 'video' : content_type;
     const { rows } = await pool.query(
       `UPDATE feed_posts SET layout=$1, title=$2, subtitle=$3, content_type=$4, body=$5, link_url=$6, media_url=$7, thumbnail_url=$8, status=$9
        WHERE id=$10 RETURNING *`,
-      [layout, title, subtitle, content_type, body, link_url, media_url, thumbnail_url, status, req.params.id]
+      [layout, title, subtitle, resolvedType, body, link_url, media_url, thumbnail_url, status, req.params.id]
     );
     if (!rows.length) return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Post not found' } });
     res.json(normalizeFeedRow(rows[0]));

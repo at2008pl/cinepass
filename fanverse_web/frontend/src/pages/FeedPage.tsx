@@ -10,7 +10,7 @@ import Modal from "@/components/shared/Modal";
 import InputField from "@/components/shared/InputField";
 import SelectField from "@/components/shared/SelectField";
 
-const BLANK = { layout: "hero", title: "", subtitle: "", type: "image", body: "", link: "", media_url: "", status: "draft" };
+const BLANK = { layout: "hero", title: "", subtitle: "", type: "image", body: "", link: "", media_url: "", status: "live" };
 
 const FeedPage = () => {
   const [posts, setPosts] = useState<FeedPost[]>([]);
@@ -144,9 +144,17 @@ const FeedPage = () => {
         <Modal title="Create Feed Post" onClose={closeModal} wide>
           {/* Row 1: Layout + Status side by side */}
           <div className="grid grid-cols-2 gap-3 mb-1">
-            <SelectField label="Layout" value={form.layout} onChange={(v) => sf("layout", v)}
+            <SelectField label="Layout" value={form.layout} onChange={(v) => setForm((f) => ({
+              ...f,
+              layout: v,
+              ...(v === "reel" ? { type: "video" } : {}),
+            }))}
               options={FEED_LAYOUTS.map((l) => ({ value: l.id, label: `${l.icon} ${l.label}` }))} />
-            <SelectField label="Content Type" value={form.type} onChange={(v) => sf("type", v)}
+            <SelectField label="Content Type" value={form.type} onChange={(v) => setForm((f) => ({
+              ...f,
+              type: v,
+              ...(v === "video" && f.layout === "hero" ? { layout: "reel" } : {}),
+            }))}
               options={[{ value: "image", label: "🖼️ Image / Poster" }, { value: "video", label: "🎬 Video / Reel" }, { value: "text", label: "📝 Text Only" }, { value: "link", label: "🔗 External Link" }]} />
           </div>
 
